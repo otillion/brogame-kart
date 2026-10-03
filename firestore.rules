@@ -1,0 +1,103 @@
+rules_version = '2';
+
+// BroGame Game Kart — قواعد الحماية (Firestore Security Rules)
+// هدول القواعد هنن اللي بيمنعوا الغش: ما حدا بيقدر يعدّل نجومه أو يستعمل كود مرتين.
+//
+// ⚠️ غيّر الإيميل تحت لإيميل جوجل تبع صاحب المحل (ونفس الإيميل بملف index.html → ownerEmails)
+// الأرقام تحت (30 ثانية، 50 دقيقة، 6 طابات) لازم تطابق الإعدادات بملف index.html
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function ownerEmails() { return ['broogame10@gmail.com']; }
+
+    function signedIn() { return request.auth != null; }
+
+    function isOwner() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in ownerEmails();
+    }
+
+    function codeDoc(c) { return /databases/$(database)/documents/codes/$(c); }
+    function customerDoc(u) { return /databases/$(database)/documents/customers/$(u); }
+
+    // الزبون بيغيّر اسمه/صورته بس (من حساب جوجل)
+    function profileEdit() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'photo'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 80;
+    }
+
+    // الزبون بياخد طابة وحدة: لازم يكون الكود موجود، مش مستعمل، عمره أقل من 30 ثانية،
+    // والكود بينحرق بنفس العملية، ومرّ 50 دقيقة على آخر طابة، والطابات أقل من 6
+    function earnStar(uid) {
+      let before = resource.data;
+      let after = request.resource.data;
+      let c = after.lastCode;
+      return after.diff(before).affectedKeys().hasOnly(['stars', 'lastStarAt', 'lastCode'])
+        && c is string
+        && c.matches('^[0-9]{5}$')
+        && before.stars < 6
+        && after.stars == before.stars + 1
+        && after.lastStarAt == request.time
+        && (before.lastStarAt == null || request.time > before.lastStarAt + duration.value(50, 'm'))
+        && exists(codeDoc(c))
+        && get(codeDoc(c)).data.used == false
+        && request.time < get(codeDoc(c)).data.createdAt + duration.value(30, 's')
+        && getAfter(codeDoc(c)).data.used == true
+        && getAfter(codeDoc(c)).data.usedBy == uid;
+    }
+
+    // صاحب المحل بيعطي الساعة المجانية: الطابات بترجع صفر وبيزيد عدّاد الساعات المجانية واحد
+    function giveReward() {
+      let b = resource.data;
+      let a = request.resource.data;
+      return a.diff(b).affectedKeys().hasOnly(['stars', 'rewards', 'lastRedeemAt'])
+        && b.stars >= 6
+        && a.stars == 0
+        && a.rewards == b.rewards + 1
+        && a.lastRedeemAt == request.time;
+    }
+
+    match /customers/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isOwner());
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'email', 'photo', 'stars', 'rewards', 'createdAt', 'lastStarAt', 'lastCode'])
+        && request.resource.data.stars == 0
+        && request.resource.data.rewards == 0
+        && request.resource.data.lastStarAt == null
+        && request.resource.data.lastCode == null
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if signedIn() && request.auth.uid == uid && (profileEdit() || earnStar(uid));
+      allow update: if isOwner() && giveReward();
+      allow delete: if isOwner();
+    }
+
+    // الأكواد: بس شاشة صاحب المحل بتنشئها وبتقراها. الزبون ما بيقدر يشوف ولا كود.
+    // الزبون بيقدر بس "يحرق" كود صالح، وبنفس اللحظة لازم ياخد طابته (نفس العملية).
+    match /codes/{code} {
+      allow read, create, delete: if isOwner();
+      allow update: if isOwner() || (
+        signedIn()
+        && resource.data.used == false
+        && request.time < resource.data.createdAt + duration.value(30, 's')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used', 'usedBy', 'usedAt'])
+        && request.resource.data.used == true
+        && request.resource.data.usedBy == request.auth.uid
+        && request.resource.data.usedAt == request.time
+        && getAfter(customerDoc(request.auth.uid)).data.lastCode == code
+        && getAfter(customerDoc(request.auth.uid)).data.lastStarAt == request.time
+      );
+    }
+
+    // أي شي تاني ممنوع
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
