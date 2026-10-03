@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="logo.svg">
+<title>BroGame Game Kart</title>
+<meta name="theme-color" content="#0d0c1c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Russo+One&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow "game card" column on a dark lounge floor; the stars live on a mini billiard table (indigo cushion rail, purple felt). */
+:root{
+  --night:#0d0c1c;        /* lounge floor */
+  --night-2:#16142e;      /* raised surface */
+  --felt:#33246b;         /* table felt */
+  --felt-deep:#1f1647;
+  --rail:#55518b;         /* BroGame logo indigo = cushion rail */
+  --rail-dark:#3b3873;
+  --chalk:#f4f2ff;        /* text */
+  --muted:#aaa5d8;
+  --line:#2d2a52;
+  --accent:#5cc8ff;       /* cue-chalk blue */
+  --accent-ink:#06121c;
+  --gold:#ffd166;         /* free hour */
+  --ok:#3ddc97; --err:#ff6b81; --warn:#ffb454;
+  --f-display:"Russo One","Rubik",system-ui,sans-serif;
+  --f-body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-digit:"Chakra Petch","Rubik",ui-monospace,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--night);color:var(--chalk)}
+body{
+  font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background:
+    radial-gradient(900px 520px at 50% -180px,#2a1f63 0%,transparent 70%),
+    radial-gradient(600px 400px at 110% 110%,#1b2350 0%,transparent 70%),
+    var(--night);
+  min-height:100vh;
+}
+*{box-sizing:border-box}
+button,input{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+.wrap{max-width:460px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;display:flex;flex-direction:column;gap:18px}
+.wrap.wide{max-width:1000px}
+
+/* demo strip */
+.demo{background:#2a2350;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted);padding-inline:16px;padding-block:8px}
+.demo .in{max-width:1000px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.demo nav{display:flex;gap:6px;flex-wrap:wrap}
+.demo nav a{color:var(--chalk);text-decoration:none;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--night-2)}
+.demo nav a.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* header */
+.top{display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand img{width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--rail),0 6px 18px rgba(0,0,0,.4)}
+.brand b{font-family:var(--f-display);font-weight:400;font-size:17px;letter-spacing:.02em;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.langs{display:flex;background:var(--night-2);border:1px solid var(--line);border-radius:99px;padding:2px}
+.langs button{border:0;background:transparent;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer}
+.langs button.on{background:var(--rail);color:var(--chalk)}
+
+/* panels */
+.panel{background:var(--night-2);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.15}
+h2{font-family:var(--f-display);font-weight:400;font-size:19px}
+p{margin:0}
+.muted{color:var(--muted)}
+
+/* billiard table */
+.table{
+  position:relative;border-radius:22px;padding:14px;width:100%;align-self:stretch;
+  background:linear-gradient(180deg,var(--rail) 0%,var(--rail-dark) 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 14px 34px rgba(0,0,0,.45);
+}
+.table::before,.table::after{ /* rail sights (diamonds) */
+  content:"";position:absolute;left:18%;right:18%;height:5px;top:5px;
+  background:radial-gradient(circle,#e8e4ff 1.6px,transparent 2.2px) 0 50%/25% 100% repeat-x;opacity:.75;
+}
+.table::after{top:auto;bottom:5px}
+.felt{
+  position:relative;border-radius:12px;padding:18px 12px;
+  background:radial-gradient(120% 140% at 50% 40%,var(--felt) 0%,var(--felt-deep) 100%);
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),inset 0 8px 18px rgba(0,0,0,.35);
+  display:flex;align-items:center;justify-content:center;gap:clamp(3px,1.4cqi,10px);
+}
+.table .felt{container-type:inline-size;padding-inline:8px}
+.table .ball{--s:min(46px,11.2cqi)}
+.pocket{position:absolute;width:14px;height:14px;border-radius:50%;background:#07060f;box-shadow:inset 0 2px 3px rgba(0,0,0,.8)}
+.pocket.tl{top:-5px;left:-5px}.pocket.tr{top:-5px;right:-5px}.pocket.bl{bottom:-5px;left:-5px}.pocket.br{bottom:-5px;right:-5px}
+.string{width:2px;align-self:stretch;margin-inline:2px;background:repeating-linear-gradient(180deg,rgba(255,255,255,.35) 0 4px,transparent 4px 8px)}
+
+.ball{
+  --c:#888;--s:40px;
+  width:var(--s);height:var(--s);border-radius:50%;flex:none;position:relative;
+  display:grid;place-items:center;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.75) 0 6%,transparent 22%),
+             radial-gradient(circle at 50% 50%,var(--c) 55%,color-mix(in srgb,var(--c) 55%,#000) 100%);
+  box-shadow:0 4px 8px rgba(0,0,0,.45);
+}
+.ball i{font-style:normal;font-family:var(--f-digit);font-weight:700;font-size:calc(var(--s)*.3);color:#111;
+  width:46%;height:46%;border-radius:50%;background:#fbfaf5;display:grid;place-items:center;line-height:1}
+.ball.off{background:transparent;box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);}
+.ball.off i{background:transparent;color:rgba(255,255,255,.28)}
+.b1{--c:#f4c20d}.b2{--c:#2456d6}.b3{--c:#d62839}.b4{--c:#7a35b0}.b5{--c:#f26b1d}.b6{--c:#1f9a57}.b8{--c:#14131a}
+.ball.b8:not(.off){box-shadow:0 0 0 3px var(--gold),0 0 22px rgba(255,209,102,.55),0 4px 8px rgba(0,0,0,.45)}
+.ball.b8.off{box-shadow:inset 0 0 0 2px rgba(255,209,102,.35)}
+.ball.b8.off i{color:rgba(255,209,102,.5)}
+.ball.new{animation:roll .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes roll{0%{transform:translateX(-140px) rotate(-540deg);opacity:0}70%{transform:translateX(6px) rotate(15deg);opacity:1}100%{transform:none}}
+.mini .ball{--s:22px}
+.mini.felt{padding:6px 8px;gap:4px;border-radius:99px;display:inline-flex}
+
+.score{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.score .big{font-family:var(--f-digit);font-weight:700;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.score .big span{color:var(--muted);font-size:22px}
+
+/* code entry */
+.codebox{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;direction:ltr}
+.cell{height:62px;border-radius:12px;background:var(--night);border:1.5px solid var(--line);display:grid;place-items:center;
+  font-family:var(--f-digit);font-weight:700;font-size:30px;font-variant-numeric:tabular-nums}
+.cell.cur{border-color:var(--accent);box-shadow:0 0 0 3px rgba(92,200,255,.18)}
+.codebox input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:text;border:0}
+.btn{appearance:none;border:0;border-radius:14px;padding:14px 18px;font-weight:700;font-size:16px;cursor:pointer;
+  background:var(--accent);color:var(--accent-ink);display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.btn[disabled]{opacity:.55;cursor:default}
+.btn.ghost{background:transparent;color:var(--chalk);border:1px solid var(--line)}
+.btn.gold{background:var(--gold);color:#241a00}
+.btn.small{padding:8px 12px;font-size:13.5px;border-radius:10px}
+.btn.google{background:#fff;color:#1f1f1f;width:100%}
+.btn.google svg{width:20px;height:20px}
+.msg{border-radius:12px;padding:10px 12px;font-size:14px;border:1px solid}
+.msg.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.msg.err{color:var(--err);border-color:color-mix(in srgb,var(--err) 40%,transparent);background:color-mix(in srgb,var(--err) 10%,transparent)}
+.msg.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+
+.reward{border-color:color-mix(in srgb,var(--gold) 55%,transparent);background:linear-gradient(160deg,#2b2412 0%,var(--night-2) 60%)}
+.reward h2{color:var(--gold)}
+.who{display:flex;gap:10px;align-items:center;background:var(--night);border-radius:12px;padding:10px 12px;border:1px dashed color-mix(in srgb,var(--gold) 45%,transparent)}
+.who b{display:block}
+.avatar{width:38px;height:38px;border-radius:50%;flex:none;background:var(--rail);display:grid;place-items:center;font-weight:700;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+
+.steps{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:flex-start;counter-increment:s}
+.steps li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--felt);border:1px solid var(--rail);
+  display:grid;place-items:center;font-family:var(--f-digit);font-weight:700;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;padding:4px 10px;border-radius:99px;background:var(--night);border:1px solid var(--line);color:var(--muted)}
+.chip.ready{color:#241a00;background:var(--gold);border-color:var(--gold);font-weight:700}
+
+.foot{display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--muted)}
+.foot a{color:var(--chalk);text-decoration:none;border-bottom:1px solid var(--line)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0;font-size:13px}
+
+/* sign-in hero */
+.hero{text-align:center;align-items:center}
+.hero .logo{width:112px;height:112px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--rail),0 0 0 9px rgba(85,81,139,.25),0 18px 40px rgba(0,0,0,.5)}
+
+/* modal (demo login / confirmations) */
+.sheet{position:fixed;inset:0;background:rgba(5,4,14,.7);display:grid;place-items:center;padding:16px;z-index:20}
+.sheet .panel{width:min(400px,100%)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field input{background:var(--night);border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:16px}
+.field input:focus{border-color:var(--accent);outline:none}
+
+/* code screen (owner TV/tablet) */
+.screen{min-height:calc(100vh - 40px);display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;max-width:1100px;margin:0 auto;padding-inline:24px;padding-block:24px}
+.screen .left{display:flex;flex-direction:column;gap:18px;min-width:0}
+.screen h1{font-size:clamp(26px,4vw,44px)}
+.digits{display:flex;gap:clamp(6px,1.2vw,14px);direction:ltr}
+.digits span{font-family:var(--f-digit);font-weight:700;font-size:clamp(56px,11vw,150px);line-height:1;
+  background:var(--felt-deep);border:2px solid var(--rail);border-radius:18px;padding:.08em .14em;min-width:.9em;text-align:center;
+  box-shadow:inset 0 6px 16px rgba(0,0,0,.4)}
+.timer{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:clamp(14px,1.6vw,20px)}
+.bar{flex:1;height:10px;border-radius:99px;background:var(--line);overflow:hidden;max-width:520px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .25s linear}
+.qr{background:#fff;padding:14px;border-radius:18px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#1b1838;max-width:100%}
+.qr p{font-size:13px;font-weight:500;text-align:center;max-width:200px}
+.flash{position:fixed;inset:0;display:grid;place-items:center;background:rgba(13,12,28,.88);z-index:30;text-align:center}
+.flash div{display:flex;flex-direction:column;gap:14px;align-items:center}
+.flash .ball{--s:120px}
+.flash h2{font-size:clamp(28px,5vw,54px);color:var(--ok)}
+@media (max-width:760px){.screen{grid-template-columns:1fr}.qr{justify-self:start}}
+
+/* admin */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--night-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0}
+.stat b{display:block;font-family:var(--f-digit);font-size:28px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:12.5px;color:var(--muted)}
+.stat.hl b{color:var(--gold)}
+.list{display:flex;flex-direction:column}
+.cust{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.cust:first-child{border-top:0}
+.cust .nm{min-width:0}
+.cust .nm b,.cust .nm small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cust .nm small{color:var(--muted);font-size:12.5px}
+.cust .act{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.search{background:var(--night);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;width:100%}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .stat:last-child{grid-column:span 2}.cust{grid-template-columns:auto minmax(0,1fr)}.cust .act{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}}
+
+[dir=rtl] .brand small{letter-spacing:0}
+[dir=rtl] .eyebrow{letter-spacing:0}
+@media (prefers-reduced-motion:reduce){.ball.new{animation:none}.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+
+<div id="demo" hidden></div>
+<main id="app" aria-live="polite"></main>
+<div id="layer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* =====================================================================
+   AYARLAR / الإعدادات
+   Firebase bilgilerini buraya yapıştır. Boş kalırsa uygulama DEMO modunda çalışır.
+   الصق معلومات Firebase هون. إذا ضلّت فاضية، الموقع بيشتغل بوضع التجربة (ديمو).
+   ===================================================================== */
+const CONFIG = {
+  firebase: {
+    apiKey: "AIzaSyC24uYogcibnbJHkcWRO-wlAS9FK9rZWSM",
+    authDomain: "brogame-kart.firebaseapp.com",
+    projectId: "brogame-kart",
+    appId: "1:674913714544:web:700a9750ff7efc921d8fb5"
+  },
+  // Sahip e-postaları (firestore.rules ile AYNI olmalı) / إيميل صاحب المحل (لازم يطابق ملف القواعد)
+  ownerEmails: ["broogame10@gmail.com"],
+  starsForReward: 6,      // 6 top = 1 saat
+  codeSeconds: 20,        // ekrandaki kod kaç saniyede değişir
+  codeValidSeconds: 30,   // kod kaç saniye geçerli (rules ile aynı)
+  cooldownMinutes: 50,    // iki top arası en az süre (rules ile aynı)
+  shop: {
+    name: "BroGame",
+    address: "Merkez Mah. Eskiköy Cad. No:38, Mezitli / Mersin",
+    phone: "0531 769 05 33",
+    whatsapp: "905317690533",
+    instagram: "brogameps"
+  }
+};
+const DEMO = !CONFIG.firebase.apiKey;
+const DEMO_COOLDOWN_SEC = 30;
+
+/* ---------------- i18n ---------------- */
+const I18N = {
+  tr:{
+    sub:"Game Kart", tagline:"Her oyun saatine bir top. 6 top = 1 saat bizden.",
+    signTitle:"Game Kart'ına giriş yap", google:"Google ile giriş yap",
+    signNote:"Topların Google hesabına bağlı kalır. Telefonunu değiştirsen bile kaybolmaz, kimse senin yerine toplayamaz.",
+    inApp:"Instagram veya başka bir uygulamanın içindeysen Google girişi çalışmaz. Menüden “Tarayıcıda aç” seçeneğine dokun.",
+    hello:"Merhaba", balls:"top", left:"{n} saat daha oyna, sonraki saat bizden.", left1:"Sadece 1 saat daha oyna, sonraki saat bizden.",
+    rewardTitle:"Ücretsiz 1 saatin hazır!", rewardText:"Bu ekranı kasada göster. Ücretsiz saat kullanılınca kartın yeniden başlar.",
+    codeLabel:"Kasadaki ekranda görünen kodu gir", codeHint:"Kod 20 saniyede bir değişir ve sadece bir kez kullanılabilir.",
+    claim:"Topu al", checking:"Kontrol ediliyor…",
+    ok:"Tebrikler! Yeni topun masada.", invalid:"Kod geçersiz ya da süresi doldu. Ekrandaki yeni kodu dene.",
+    cooldown:"Saatte sadece 1 top alınır. Sonraki top {m} dk sonra.", full:"Kartın dolu. Önce ücretsiz saatini kullan.",
+    short:"Kod 5 haneli olmalı.", nextIn:"Sonraki top {m} dk sonra açılır.",
+    how:"Nasıl çalışır?",
+    how1:"En az 1 saat oyna: PlayStation 5, bilardo, masa tenisi ya da racing simülatör.",
+    how2:"Kasadaki ekranda çıkan 5 haneli kodu buraya gir. Her saat için 1 top.",
+    how3:"6 top tamamlanınca siyah 8 numara senin: 1 saat ücretsiz.",
+    used:"Kullandığın ücretsiz saat: {n}", out:"Çıkış yap",
+    sections:["PlayStation 5","Bilardo","Masa Tenisi","Racing Simülatör"],
+    screenTitle:"Kodu gir, topunu al", screenSub:"Telefonunda Game Kart'ı aç ve bu kodu yaz.",
+    newIn:"Yeni kod {s} sn", given:"Top verildi", scan:"Telefonunla tara, Game Kart'ı aç",
+    todayGiven:"Bu ekrandan verilen top: {n}", fullscreen:"Tam ekran",
+    ownerOnly:"Bu sayfa sadece işletme sahibi içindir.", ownerSign:"Sahip hesabıyla giriş yap",
+    notOwner:"Bu hesap ({e}) sahip olarak tanımlı değil.",
+    admin:"Yönetim", customers:"Müşteri", ready:"Hazır ücretsiz saat", givenTotal:"Verilen ücretsiz saat",
+    search:"İsim veya e-posta ara", redeem:"Ücretsiz saati kullandır", sure:"Onaylıyor musun?", yes:"Evet, kullandır", no:"Vazgeç",
+    readyChip:"Hazır", openScreen:"Kod ekranını aç", empty:"Henüz müşteri yok. İlk müşteri Google ile giriş yapınca burada görünür.",
+    noMatch:"Aramaya uyan müşteri yok.", redeemed:"Ücretsiz saat kullanıldı, kart sıfırlandı.", freeUsed:"Ücretsiz saat: {n}",
+    demo:"Demo modu: veriler sadece bu cihazda tutulur, bekleme süresi 30 sn. Gerçek kurulumda Google girişi ve ortak veritabanı açılır.",
+    dCustomer:"Müşteri", dScreen:"Kod ekranı", dAdmin:"Yönetim",
+    demoCode:"Demo: kasadaki ekrandan yeni kod al",demoCodeIs:"Ekrandaki kod: {c}",demoLogin:"Demo girişi", demoName:"Adın", demoNote:"Gerçek sitede bu adımda Google hesabı seçilir.", demoGo:"Giriş yap", cancel:"Vazgeç",
+    loading:"Yükleniyor…", err:"Bir şey ters gitti. Sayfayı yenileyip tekrar dene."
+  },
+  ar:{
+    sub:"Game Kart", tagline:"كل ساعة لعب = طابة. ٦ طابات = ساعة مجانية علينا.",
+    signTitle:"سجّل دخولك لبطاقة اللعب", google:"تسجيل الدخول بحساب Google",
+    signNote:"طاباتك محفوظة على حساب جوجل تبعك. حتى لو غيّرت تلفونك ما بتضيع، وما حدا بيقدر يجمع عنك.",
+    inApp:"إذا فاتح الصفحة من داخل إنستغرام أو تطبيق تاني، تسجيل جوجل ما بيشتغل. اختار «فتح بالمتصفح» من القائمة.",
+    hello:"أهلاً", balls:"طابة", left:"باقي {n} ساعات لعب والساعة الجاية علينا.", left1:"باقي ساعة وحدة والساعة الجاية علينا.",
+    rewardTitle:"ساعتك المجانية جاهزة!", rewardText:"فرجي هالشاشة عالكاشير. بعد ما تستعمل الساعة بترجع البطاقة من الأول.",
+    codeLabel:"دخّل الكود اللي ظاهر عالشاشة بالمحل", codeHint:"الكود بيتغيّر كل ٢٠ ثانية وبينستعمل مرة وحدة بس.",
+    claim:"خُد الطابة", checking:"عم نتأكد…",
+    ok:"تمام! انضافت طابة جديدة عالطاولة.", invalid:"الكود غلط أو خلص وقته. جرّب الكود الجديد عالشاشة.",
+    cooldown:"بتاخد طابة وحدة بس كل ساعة. الطابة الجاية بعد {m} دقيقة.", full:"بطاقتك مليانة. استعمل ساعتك المجانية أول.",
+    short:"الكود لازم يكون ٥ أرقام.", nextIn:"الطابة الجاية بتنفتح بعد {m} دقيقة.",
+    how:"كيف بتشتغل؟",
+    how1:"العب ساعة على الأقل: بلايستيشن ٥، بلياردو، بينغ بونغ أو سيمولاتور السيارات.",
+    how2:"دخّل الكود المؤلف من ٥ أرقام اللي ظاهر عالشاشة. كل ساعة = طابة.",
+    how3:"لما تكمّل ٦ طابات، الطابة السودا رقم ٨ إلك: ساعة مجانية.",
+    used:"الساعات المجانية اللي استعملتها: {n}", out:"تسجيل خروج",
+    sections:["بلايستيشن ٥","بلياردو","بينغ بونغ","سيمولاتور سيارات"],
+    screenTitle:"دخّل الكود وخُد طابتك", screenSub:"افتح Game Kart بتلفونك واكتب هالكود.",
+    newIn:"كود جديد بعد {s} ثانية", given:"انعطت الطابة", scan:"امسح بتلفونك وافتح Game Kart",
+    todayGiven:"الطابات اللي انعطت من هالشاشة: {n}", fullscreen:"ملء الشاشة",
+    ownerOnly:"هالصفحة لصاحب المحل بس.", ownerSign:"سجّل دخول بحساب صاحب المحل",
+    notOwner:"هالحساب ({e}) مش مسجّل كصاحب المحل.",
+    admin:"لوحة المالك", customers:"زبون", ready:"ساعات مجانية جاهزة", givenTotal:"ساعات مجانية انعطت",
+    search:"دوّر بالاسم أو الإيميل", redeem:"استعمال الساعة المجانية", sure:"متأكد؟", yes:"إيه، استعملها", no:"إلغاء",
+    readyChip:"جاهزة", openScreen:"افتح شاشة الكود", empty:"لسا ما في زبائن. أول ما يسجّل أول زبون بجوجل بيطلع هون.",
+    noMatch:"ما في زبون بهالاسم.", redeemed:"انستعملت الساعة المجانية ورجعت البطاقة من الأول.", freeUsed:"ساعات مجانية: {n}",
+    demo:"وضع التجربة: البيانات محفوظة على هالجهاز بس، والانتظار بين الطابات ٣٠ ثانية. بالنسخة الحقيقية بيشتغل تسجيل جوجل وقاعدة بيانات مشتركة.",
+    dCustomer:"الزبون", dScreen:"شاشة الكود", dAdmin:"لوحة المالك",
+    demoCode:"تجربة: جيب كود جديد من شاشة المحل",demoCodeIs:"الكود عالشاشة: {c}",demoLogin:"دخول تجريبي", demoName:"اسمك", demoNote:"بالموقع الحقيقي هون بيختار الزبون حساب جوجل تبعه.", demoGo:"دخول", cancel:"إلغاء",
+    loading:"عم يحمّل…", err:"صار خطأ. حدّث الصفحة وجرّب مرة تانية."
+  },
+  en:{
+    sub:"Game Kart", tagline:"One ball for every hour you play. 6 balls = 1 hour on us.",
+    signTitle:"Sign in to your Game Kart", google:"Continue with Google",
+    signNote:"Your balls are tied to your Google account, so they stay safe if you change phones and nobody can collect them for you.",
+    inApp:"Google sign-in doesn't work inside Instagram or other in-app browsers. Use the menu to open this page in your browser.",
+    hello:"Hi", balls:"balls", left:"{n} more hours and the next one is on us.", left1:"Just 1 more hour and the next one is on us.",
+    rewardTitle:"Your free hour is ready!", rewardText:"Show this screen at the counter. Your card starts over after the free hour is used.",
+    codeLabel:"Enter the code shown on the screen at the counter", codeHint:"The code changes every 20 seconds and works only once.",
+    claim:"Claim ball", checking:"Checking…",
+    ok:"Nice! A new ball is on the table.", invalid:"That code is wrong or expired. Try the new code on the screen.",
+    cooldown:"You can earn 1 ball per hour. Next ball in {m} min.", full:"Your card is full. Use your free hour first.",
+    short:"The code has 5 digits.", nextIn:"Next ball unlocks in {m} min.",
+    how:"How it works",
+    how1:"Play at least 1 hour: PlayStation 5, billiards, table tennis or the racing simulator.",
+    how2:"Enter the 5-digit code from the screen at the counter. 1 ball per hour.",
+    how3:"Fill all 6 and the black 8-ball is yours: 1 free hour.",
+    used:"Free hours used: {n}", out:"Sign out",
+    sections:["PlayStation 5","Billiards","Table Tennis","Racing Simulator"],
+    screenTitle:"Enter the code, get your ball", screenSub:"Open Game Kart on your phone and type this code.",
+    newIn:"New code in {s}s", given:"Ball given", scan:"Scan with your phone to open Game Kart",
+    todayGiven:"Balls given from this screen: {n}", fullscreen:"Full screen",
+    ownerOnly:"This page is for the shop owner only.", ownerSign:"Sign in with the owner account",
+    notOwner:"This account ({e}) isn't set as the owner.",
+    admin:"Owner panel", customers:"Customers", ready:"Free hours ready", givenTotal:"Free hours given",
+    search:"Search name or email", redeem:"Use free hour", sure:"Confirm?", yes:"Yes, use it", no:"Cancel",
+    readyChip:"Ready", openScreen:"Open code screen", empty:"No customers yet. They appear here after their first Google sign-in.",
+    noMatch:"No customer matches that search.", redeemed:"Free hour used and the card was reset.", freeUsed:"Free hours: {n}",
+    demo:"Demo mode: data stays on this device and the wait between balls is 30 s. The real setup uses Google sign-in and a shared database.",
+    dCustomer:"Customer", dScreen:"Code screen", dAdmin:"Owner panel",
+    demoCode:"Demo: get a fresh code from the counter screen",demoCodeIs:"Code on the screen: {c}",demoLogin:"Demo sign-in", demoName:"Your name", demoNote:"On the real site the customer picks their Google account here.", demoGo:"Sign in", cancel:"Cancel",
+    loading:"Loading…", err:"Something went wrong. Refresh the page and try again."
+  }
+};
+function pickLang(){
+  try{ const s=localStorage.getItem("bro_lang"); if(s && I18N[s]) return s; }catch(e){}
+  const n=(navigator.language||"tr").slice(0,2); return I18N[n]? n : "tr";
+}
+const S = { lang:pickLang(), view:"customer", authReady:false, user:null, customer:null, customers:[],
+  msg:null, busy:false, justEarned:-1, search:"", confirmUid:null, adminMsg:null, sheet:null };
+function t(k,v){ let s=(I18N[S.lang][k] ?? I18N.tr[k] ?? k); if(v) for(const x in v) s=s.replaceAll("{"+x+"}",v[x]); return s; }
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $ = (q,r=document)=>r.querySelector(q);
+const fmtN = n => new Intl.NumberFormat(S.lang==="ar"?"ar-SY":S.lang).format(n);
+const isOwnerEmail = e => !!e && CONFIG.ownerEmails.map(x=>x.toLowerCase()).includes(e.toLowerCase());
+const cooldownMs = () => (DEMO? DEMO_COOLDOWN_SEC*1000 : CONFIG.cooldownMinutes*60000);
+
+/* ---------------- backends ---------------- */
+function bad(code){ const e=new Error(code); e.code=code; return e; }
+
+function makeDemo(){
+  const KEY="brogame_demo_v1"; let mem=null; const subs=new Set();
+  const read=()=>{ try{ const s=localStorage.getItem(KEY); if(s) return JSON.parse(s);}catch(e){} return mem; };
+  const write=d=>{ mem=d; try{ localStorage.setItem(KEY,JSON.stringify(d)); }catch(e){} subs.forEach(f=>f()); };
+  if(!read()){
+    const now=Date.now();
+    write({ session:"demo-ahmet", codes:{}, customers:{
+      "demo-ahmet":{name:"Ahmet Yılmaz (örnek)",email:"ahmet.ornek@gmail.com",photo:"",stars:4,rewards:1,lastStarAt:now-7200000,createdAt:now-86400000*20},
+      "demo-zeynep":{name:"Zeynep K. (örnek)",email:"zeynep.ornek@gmail.com",photo:"",stars:6,rewards:0,lastStarAt:now-3600000,createdAt:now-86400000*9},
+      "demo-omar":{name:"Omar H. (örnek)",email:"omar.ornek@gmail.com",photo:"",stars:2,rewards:3,lastStarAt:now-86400000,createdAt:now-86400000*60},
+      "demo-elif":{name:"Elif D. (örnek)",email:"elif.ornek@gmail.com",photo:"",stars:5,rewards:2,lastStarAt:now-5400000,createdAt:now-86400000*33}
+    }});
+  }
+  window.addEventListener("storage",e=>{ if(e.key===KEY) subs.forEach(f=>f()); });
+  const userOf=d=> d.session && d.customers[d.session] ? {uid:d.session, ...d.customers[d.session]} : null;
+  return {
+    demo:true,
+    onAuth(cb){ let last; const f=()=>{ const u=userOf(read()); const k=u&&u.uid; if(k!==last){ last=k; cb(u&&{uid:u.uid,name:u.name,email:u.email,photo:u.photo}); } }; subs.add(f); f(); },
+    async signIn(){ S.sheet="demoLogin"; render(); },
+    async demoCreate(name){
+      const d=read(); const uid="demo-"+Math.random().toString(36).slice(2,8);
+      d.customers[uid]={name,email:name.toLowerCase().replace(/[^a-z0-9]+/g,".").replace(/^\.|\.$/g,"")+"@gmail.com",photo:"",stars:0,rewards:0,lastStarAt:null,createdAt:Date.now()};
+      d.session=uid; write(d);
+    },
+    async signOut(){ const d=read(); d.session=null; write(d); },
+    watchCustomer(uid,cb){ const f=()=>{ const c=read().customers[uid]; cb(c?{uid,...c}:null); }; subs.add(f); f(); return ()=>subs.delete(f); },
+    async ensureCustomer(){},
+    async redeem(uid,code){
+      const d=read(); const c=d.codes[code]; const now=Date.now(); const cu=d.customers[uid];
+      if(!c || c.used || now-c.createdAt>CONFIG.codeValidSeconds*1000) throw bad("invalid");
+      if(cu.stars>=CONFIG.starsForReward) throw bad("full");
+      if(cu.lastStarAt && now-cu.lastStarAt<cooldownMs()) throw bad("cooldown");
+      c.used=true; c.usedBy=uid; c.usedAt=now; cu.stars+=1; cu.lastStarAt=now; cu.lastCode=code; write(d);
+    },
+    watchCustomers(cb){ const f=()=>{ const d=read(); cb(Object.entries(d.customers).map(([uid,c])=>({uid,...c}))); }; subs.add(f); f(); return ()=>subs.delete(f); },
+    async giveReward(uid){ const d=read(); const c=d.customers[uid]; if(c.stars<CONFIG.starsForReward) throw bad("invalid"); c.stars=0; c.rewards+=1; c.lastRedeemAt=Date.now(); write(d); },
+    async issueCode(code){ const d=read(); d.codes[code]={used:false,usedBy:null,usedAt:null,createdAt:Date.now()};
+      for(const k in d.codes) if(Date.now()-d.codes[k].createdAt>180000) delete d.codes[k]; write(d); },
+    watchCode(code,cb){ const f=()=>cb(read().codes[code]||null); subs.add(f); return ()=>subs.delete(f); },
+    async deleteCode(){}
+  };
+}
+
+async function makeFirebase(){
+  const base="https://www.gstatic.com/firebasejs/10.12.2/";
+  const [A,Au,F]=await Promise.all([import(base+"firebase-app.js"),import(base+"firebase-auth.js"),import(base+"firebase-firestore.js")]);
+  const app=A.initializeApp(CONFIG.firebase);
+  const auth=Au.getAuth(app); const db=F.getFirestore(app);
+  const provider=new Au.GoogleAuthProvider(); provider.setCustomParameters({prompt:"select_account"});
+  const ms=v=> v&&v.toMillis? v.toMillis() : (v??null);
+  const mapC=(id,d)=>({uid:id,...d,lastStarAt:ms(d.lastStarAt),createdAt:ms(d.createdAt),lastRedeemAt:ms(d.lastRedeemAt)});
+  Au.getRedirectResult(auth).catch(()=>{});
+  return {
+    demo:false,
+    onAuth(cb){ Au.onAuthStateChanged(auth,u=>cb(u&&{uid:u.uid,name:u.displayName||u.email,email:u.email,photo:u.photoURL||""})); },
+    async signIn(){
+      try{ await Au.signInWithPopup(auth,provider); }
+      catch(e){
+        if(["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)) return Au.signInWithRedirect(auth,provider);
+        if(e.code!=="auth/popup-closed-by-user") throw e;
+      }
+    },
+    signOut(){ return Au.signOut(auth); },
+    async ensureCustomer(u){
+      const ref=F.doc(db,"customers",u.uid); const snap=await F.getDoc(ref);
+      if(!snap.exists()){
+        await F.setDoc(ref,{name:u.name||"",email:u.email,photo:u.photo||"",stars:0,rewards:0,createdAt:F.serverTimestamp(),lastStarAt:null,lastCode:null});
+      } else if(snap.data().name!==u.name || snap.data().photo!==u.photo){
+        await F.updateDoc(ref,{name:u.name||"",photo:u.photo||""}).catch(()=>{});
+      }
+    },
+    watchCustomer(uid,cb){ return F.onSnapshot(F.doc(db,"customers",uid),s=>cb(s.exists()?mapC(s.id,s.data()):null),()=>cb(null)); },
+    async redeem(uid,code){
+      const b=F.writeBatch(db);
+      b.update(F.doc(db,"codes",code),{used:true,usedBy:uid,usedAt:F.serverTimestamp()});
+      b.update(F.doc(db,"customers",uid),{stars:F.increment(1),lastStarAt:F.serverTimestamp(),lastCode:code});
+      try{ await b.commit(); }catch(e){ throw bad("invalid"); }
+    },
+    watchCustomers(cb,onErr){ return F.onSnapshot(F.query(F.collection(db,"customers"),F.orderBy("stars","desc")),
+      s=>cb(s.docs.map(d=>mapC(d.id,d.data()))), e=>onErr&&onErr(e)); },
+    giveReward(uid){ return F.updateDoc(F.doc(db,"customers",uid),{stars:0,rewards:F.increment(1),lastRedeemAt:F.serverTimestamp()}); },
+    issueCode(code){ return F.setDoc(F.doc(db,"codes",code),{used:false,usedBy:null,usedAt:null,createdAt:F.serverTimestamp()}); },
+    watchCode(code,cb){ return F.onSnapshot(F.doc(db,"codes",code),s=>cb(s.exists()?s.data():null),()=>{}); },
+    deleteCode(code){ return F.deleteDoc(F.doc(db,"codes",code)).catch(()=>{}); }
+  };
+}
+
+/* ---------------- shared bits ---------------- */
+const GOOGLE_SVG='<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+function ballsHTML(stars,{mini=false,newIdx=-1}={}){
+  const n=CONFIG.starsForReward; let h="";
+  for(let i=1;i<=n;i++){
+    const on=i<=stars;
+    h+=`<span class="ball b${((i-1)%6)+1} ${on?"":"off"} ${i-1===newIdx?"new":""}" aria-hidden="true"><i>${i}</i></span>`;
+  }
+  const full=stars>=n;
+  h+=`<span class="string" aria-hidden="true"></span><span class="ball b8 ${full?"":"off"} ${full&&newIdx===n-1?"new":""}" aria-hidden="true"><i>8</i></span>`;
+  const label=`<span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">${stars} / ${n}</span>`;
+  if(mini) return `<span class="felt mini" role="img" aria-label="${stars} / ${n}">${h}</span>`;
+  return `<div class="table" role="img" aria-label="${stars} / ${n}"><div class="felt"><span class="pocket tl"></span><span class="pocket tr"></span><span class="pocket bl"></span><span class="pocket br"></span>${h}${label}</div></div>`;
+}
+function avatar(u){ const i=(u.name||u.email||"?").trim().charAt(0).toUpperCase();
+  return `<span class="avatar">${u.photo?`<img src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer">`:esc(i)}</span>`; }
+function header(extra=""){
+  return `<header class="top"><div class="brand"><img src="logo.svg" alt="BroGame"><div><b>${CONFIG.shop.name}</b><small>${t("sub")}</small></div></div>
+  ${extra}<div class="langs" role="group" aria-label="Language">${["tr","ar","en"].map(l=>`<button data-lang="${l}" class="${S.lang===l?"on":""}" aria-pressed="${S.lang===l}">${l==="ar"?"ع":l.toUpperCase()}</button>`).join("")}</div></header>`;
+}
+function footer(){
+  const s=CONFIG.shop;
+  return `<footer class="panel foot">
+    <div class="chips">${t("sections").map(x=>`<span class="chip">${esc(x)}</span>`).join("")}</div>
+    <span>${esc(s.address)}</span>
+    <span class="row"><span dir="ltr" style="user-select:all">${esc(s.phone)}</span><span class="spacer"></span>
+      <a href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="https://instagram.com/${s.instagram}" target="_blank" rel="noopener">@${s.instagram}</a></span>
+  </footer>`;
+}
+const inAppBrowser=()=>/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|Snapchat/i.test(navigator.userAgent||"");
+
+/* ---------------- views ---------------- */
+function viewSignIn(){
+  return `<div class="wrap">${header()}
+  <section class="panel hero">
+    <img class="logo" src="logo.svg" alt="BroGame logo">
+    <div class="eyebrow">${t("sub")}</div>
+    <h1>${t("signTitle")}</h1>
+    <p class="muted">${t("tagline")}</p>
+    ${ballsHTML(3)}
+    ${inAppBrowser()?`<div class="msg warn">${t("inApp")}</div>`:""}
+    <button class="btn google" data-act="signin">${GOOGLE_SVG}${t("google")}</button>
+    <p class="muted" style="font-size:13px">${t("signNote")}</p>
+  </section>
+  ${howPanel()}${footer()}</div>`;
+}
+function howPanel(){
+  return `<section class="panel"><h2>${t("how")}</h2><ol class="steps"><li>${t("how1")}</li><li>${t("how2")}</li><li>${t("how3")}</li></ol></section>`;
+}
+function viewCard(){
+  const c=S.customer, u=S.user; const n=CONFIG.starsForReward;
+  if(!c) return `<div class="wrap">${header()}<section class="panel"><p class="muted">${t("loading")}</p></section></div>`;
+  const stars=Math.min(c.stars||0,n), full=stars>=n;
+  const wait=c.lastStarAt? Math.max(0,c.lastStarAt+cooldownMs()-Date.now()) : 0;
+  const waitMin=Math.ceil(wait/60000);
+  const msg=S.msg?`<div class="msg ${S.msg.k}" role="status">${esc(S.msg.t)}</div>`:"";
+  const codeUI = full ? "" : `
+    <section class="panel">
+      <label for="code" class="eyebrow">${t("codeLabel")}</label>
+      <div class="codebox">${[0,1,2,3,4].map(i=>`<div class="cell" data-cell="${i}"></div>`).join("")}
+        <input id="code" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="one-time-code" aria-label="${t("codeLabel")}">
+      </div>
+      <button class="btn" data-act="claim" ${S.busy?"disabled":""}>${S.busy?t("checking"):t("claim")}</button>
+      ${msg}
+      <p class="muted" style="font-size:13px">${wait>0? t("nextIn",{m:fmtN(Math.max(1,waitMin))}) : t("codeHint")}</p>
+      ${DEMO?`<button class="link" data-act="demo-code" style="align-self:flex-start">${t("demoCode")}</button>`:""}
+    </section>`;
+  const reward = full ? `
+    <section class="panel reward">
+      <div class="eyebrow" style="color:var(--gold)">8</div>
+      <h2>${t("rewardTitle")}</h2>
+      <p>${t("rewardText")}</p>
+      <div class="who">${avatar(u)}<div style="min-width:0"><b>${esc(c.name||u.name)}</b><small class="muted" style="overflow-wrap:anywhere">${esc(c.email||u.email)}</small></div></div>
+      ${msg}
+    </section>` : "";
+  return `<div class="wrap">${header(`<button class="link" data-act="signout">${t("out")}</button>`)}
+    <section class="panel">
+      <div class="row">${avatar(u)}<div style="min-width:0"><div class="muted" style="font-size:13px">${t("hello")}</div><b style="font-size:17px">${esc((c.name||u.name||"").split(" (")[0])}</b></div></div>
+      <div class="score"><div class="big">${fmtN(stars)}<span> / ${fmtN(n)} ${t("balls")}</span></div>
+        ${c.rewards?`<span class="chip">${t("used",{n:fmtN(c.rewards)})}</span>`:""}</div>
+      ${ballsHTML(stars,{newIdx:S.justEarned})}
+      <p class="muted">${full? t("rewardTitle") : (n-stars===1?t("left1"):t("left",{n:fmtN(n-stars)}))}</p>
+    </section>
+    ${reward}${codeUI}${howPanel()}${footer()}</div>`;
+}
+function viewOwnerGate(){
+  const u=S.user;
+  return `<div class="wrap">${header()}<section class="panel hero">
+    <img class="logo" src="logo.svg" alt="BroGame logo"><h1>${t("ownerOnly")}</h1>
+    ${u?`<div class="msg err">${t("notOwner",{e:esc(u.email)})}</div><button class="btn ghost" data-act="signout">${t("out")}</button>`
+       :`<button class="btn google" data-act="signin">${GOOGLE_SVG}${t("ownerSign")}</button>`}
+  </section></div>`;
+}
+function viewScreen(){
+  return `<div class="screen">
+    <div class="left">
+      <div class="row"><img src="logo.svg" alt="BroGame" style="width:64px;height:64px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--rail)">
+        <div><div class="eyebrow">${CONFIG.shop.name} · ${t("sub")}</div><h1>${t("screenTitle")}</h1></div></div>
+      <div class="digits" id="digits" aria-live="off">${"·····".split("").map(()=>"<span>·</span>").join("")}</div>
+      <div class="timer"><div class="bar"><i id="bar" style="width:100%"></i></div><span id="left"></span></div>
+      <p class="muted" style="font-size:clamp(14px,1.6vw,20px)">${t("screenSub")}</p>
+      <div class="row"><span class="chip" id="givenCount">${t("todayGiven",{n:fmtN(SCR.given)})}</span>
+        <button class="btn ghost small" data-act="fs">${t("fullscreen")}</button><button class="btn ghost small" data-act="go-admin">${t("admin")}</button>
+        <div class="langs" role="group" aria-label="Language">${["tr","ar","en"].map(l=>`<button data-lang="${l}" class="${S.lang===l?"on":""}" aria-pressed="${S.lang===l}">${l==="ar"?"ع":l.toUpperCase()}</button>`).join("")}</div></div>
+    </div>
+    <div class="qr"><div id="qr"></div><p>${t("scan")}</p></div>
+  </div>`;
+}
+function viewAdmin(){
+  const list=S.customers; const n=CONFIG.starsForReward;
+  const ready=list.filter(c=>(c.stars||0)>=n).length, given=list.reduce((a,c)=>a+(c.rewards||0),0);
+  const q=S.search.trim().toLowerCase();
+  const rows=list.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q))
+    .sort((a,b)=>(b.stars>=n)-(a.stars>=n)||(b.stars-a.stars)||((b.lastStarAt||0)-(a.lastStarAt||0)));
+  const row=c=>{
+    const full=(c.stars||0)>=n, conf=S.confirmUid===c.uid;
+    return `<div class="cust">${avatar(c)}<div class="nm"><b>${esc(c.name)}</b><small>${esc(c.email)}</small></div>
+      <div class="act">${ballsHTML(Math.min(c.stars||0,n),{mini:true})}
+        <div class="row" style="justify-content:flex-end">${c.rewards?`<span class="chip">${t("freeUsed",{n:fmtN(c.rewards)})}</span>`:""}
+        ${full? (conf? `<button class="btn gold small" data-act="redeem-yes" data-uid="${esc(c.uid)}">${t("yes")}</button><button class="btn ghost small" data-act="redeem-no">${t("no")}</button>`
+                     : `<span class="chip ready">${t("readyChip")}</span><button class="btn gold small" data-act="redeem" data-uid="${esc(c.uid)}">${t("redeem")}</button>`) : ""}</div></div></div>`;
+  };
+  return `<div class="wrap wide">${header(S.user&&!DEMO?`<button class="link" data-act="signout">${t("out")}</button>`:"")}
+    <div class="row"><h1 style="flex:1">${t("admin")}</h1><button class="btn small" data-act="go-screen">${t("openScreen")}</button></div>
+    <div class="stats"><div class="stat"><b>${fmtN(list.length)}</b><span>${t("customers")}</span></div>
+      <div class="stat hl"><b>${fmtN(ready)}</b><span>${t("ready")}</span></div>
+      <div class="stat"><b>${fmtN(given)}</b><span>${t("givenTotal")}</span></div></div>
+    ${S.adminMsg?`<div class="msg ${S.adminMsg.k}" role="status">${esc(S.adminMsg.t)}</div>`:""}
+    <section class="panel">
+      <input id="adminSearch" class="search" type="search" placeholder="${t("search")}" aria-label="${t("search")}" value="${esc(S.search)}">
+      <div class="list" id="custList">${list.length? (rows.length? rows.map(row).join("") : `<p class="muted">${t("noMatch")}</p>`) : `<p class="muted">${t("empty")}</p>`}</div>
+    </section></div>`;
+}
+function viewSheet(){
+  if(S.sheet!=="demoLogin") return "";
+  return `<div class="sheet"><form class="panel" id="demoForm"><h2>${t("demoLogin")}</h2><p class="muted" style="font-size:13px">${t("demoNote")}</p>
+    <div class="field"><label for="demoName">${t("demoName")}</label><input id="demoName" required maxlength="40" autocomplete="name"></div>
+    <div class="row"><button class="btn" type="submit">${t("demoGo")}</button><button class="btn ghost" type="button" data-act="sheet-close">${t("cancel")}</button></div></form></div>`;
+}
+function demoBar(){
+  const el=$("#demo"); if(!DEMO){ el.hidden=true; return; }
+  el.hidden=false; el.className="demo";
+  el.innerHTML=`<div class="in"><span>${t("demo")}</span><nav>
+    <a href="#" class="${S.view==="customer"?"on":""}">${t("dCustomer")}</a>
+    <a href="#screen" class="${S.view==="screen"?"on":""}">${t("dScreen")}</a>
+    <a href="#admin" class="${S.view==="admin"?"on":""}">${t("dAdmin")}</a></nav></div>`;
+}
+
+/* ---------------- render + routing ---------------- */
+const ownerOK=()=> DEMO || (S.user && isOwnerEmail(S.user.email));
+function render(){
+  document.documentElement.lang=S.lang; document.documentElement.dir=S.lang==="ar"?"rtl":"ltr";
+  demoBar();
+  const app=$("#app");
+  if(!S.authReady && !DEMO){ app.innerHTML=`<div class="wrap">${header()}<section class="panel"><p class="muted">${t("loading")}</p></section></div>`; }
+  else if(S.view==="screen"){ if(ownerOK()){ if(!SCR.on){ app.innerHTML=viewScreen(); startScreen(); } else { app.innerHTML=viewScreen(); paintScreen(true); } } else { stopScreen(); app.innerHTML=viewOwnerGate(); } }
+  else if(S.view==="admin"){ if(ownerOK()){ app.innerHTML=viewAdmin(); startAdmin(); } else app.innerHTML=viewOwnerGate(); }
+  else app.innerHTML = S.user? viewCard() : viewSignIn();
+  if(S.view!=="screen") stopScreen();
+  if(S.view!=="admin") stopAdmin();
+  $("#layer").innerHTML=viewSheet();
+  if(S.sheet) setTimeout(()=>$("#demoName")?.focus(),30);
+  wireCode();
+  S.justEarned=-1;
+}
+function route(){
+  const h=(location.hash||"").replace("#","");
+  S.view = h==="screen"?"screen" : h==="admin"?"admin" : "customer";
+  render();
+}
+
+/* ---------------- customer: code input ---------------- */
+function wireCode(){
+  const inp=$("#code"); if(!inp) return;
+  const paint=()=>{ const v=inp.value; document.querySelectorAll("[data-cell]").forEach((c,i)=>{ c.textContent=v[i]||""; c.classList.toggle("cur", document.activeElement===inp && i===Math.min(v.length,4)); }); };
+  inp.addEventListener("input",()=>{ inp.value=inp.value.replace(/\D/g,"").slice(0,5); paint(); if(inp.value.length===5) claim(); });
+  inp.addEventListener("focus",paint); inp.addEventListener("blur",paint);
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter") claim(); });
+  if(S.keepCode){ inp.value=S.keepCode; S.keepCode=null; } paint();
+}
+async function claim(){
+  const inp=$("#code"); if(!inp || S.busy) return;
+  const code=inp.value; const c=S.customer;
+  if(code.length!==5){ S.msg={k:"err",t:t("short")}; return render(); }
+  if((c.stars||0)>=CONFIG.starsForReward){ S.msg={k:"warn",t:t("full")}; return render(); }
+  const wait=c.lastStarAt? c.lastStarAt+cooldownMs()-Date.now() : 0;
+  if(wait>0){ S.msg={k:"warn",t:t("cooldown",{m:fmtN(Math.max(1,Math.ceil(wait/60000)))})}; return render(); }
+  S.busy=true; S.msg=null; render();
+  try{
+    const before=c.stars||0;
+    await backend.redeem(S.user.uid,code);
+    S.justEarnedPending=before; S.msg={k:"ok",t:t("ok")};
+  }catch(e){ S.msg={k:"err",t:t(e.code==="cooldown"?"cooldown":e.code==="full"?"full":"invalid",{m:fmtN(1)})}; }
+  S.busy=false; render();
+}
+
+/* ---------------- owner: code screen ---------------- */
+const SCR={on:false,code:null,issuedAt:0,timer:null,unwatch:null,given:0,issuing:false,old:[],qrDone:false,lock:null};
+function genCode(){ const a=new Uint32Array(1); let c; do{ crypto.getRandomValues(a); c=String(a[0]%100000).padStart(5,"0"); }while(c===SCR.code); return c; }
+async function issue(){
+  if(SCR.issuing) return; SCR.issuing=true;
+  try{
+    const code=genCode(); await backend.issueCode(code);
+    if(SCR.unwatch) SCR.unwatch();
+    if(SCR.code) SCR.old.push({c:SCR.code,at:Date.now()});
+    SCR.code=code; SCR.issuedAt=Date.now();
+    SCR.unwatch=backend.watchCode(code,d=>{ if(d&&d.used&&SCR.code===code){ SCR.given++; flash(); issue(); } });
+    SCR.old=SCR.old.filter(o=>{ if(Date.now()-o.at>90000){ backend.deleteCode(o.c); return false; } return true; });
+    paintScreen(true);
+  }catch(e){ const l=$("#left"); if(l) l.textContent=t("err"); }
+  SCR.issuing=false;
+}
+function paintScreen(full){
+  const left=Math.max(0,CONFIG.codeSeconds-(Date.now()-SCR.issuedAt)/1000);
+  const bar=$("#bar"), lt=$("#left"), dg=$("#digits");
+  if(bar) bar.style.width=(left/CONFIG.codeSeconds*100)+"%";
+  if(lt) lt.textContent=t("newIn",{s:fmtN(Math.ceil(left))});
+  if(full && dg && SCR.code) dg.innerHTML=SCR.code.split("").map(d=>`<span>${d}</span>`).join("");
+  const gc=$("#givenCount"); if(gc) gc.textContent=t("todayGiven",{n:fmtN(SCR.given)});
+  const q=$("#qr"); if(q && !q.firstChild && window.QRCode){
+    const url=location.origin+location.pathname; const size=Math.min(220,Math.max(140,Math.round(innerWidth*0.18)));
+    try{ new QRCode(q,{text:url,width:size,height:size,colorDark:"#1b1838",colorLight:"#ffffff"}); }catch(e){}
+  }
+}
+function startScreen(){
+  SCR.on=true; issue();
+  SCR.timer=setInterval(()=>{ if(Date.now()-SCR.issuedAt>=CONFIG.codeSeconds*1000) issue(); else paintScreen(false); },250);
+  if(navigator.wakeLock) navigator.wakeLock.request("screen").then(l=>SCR.lock=l).catch(()=>{});
+}
+function stopScreen(){ if(!SCR.on) return; SCR.on=false; clearInterval(SCR.timer); if(SCR.unwatch) SCR.unwatch(); SCR.unwatch=null; SCR.code=null;
+  try{ SCR.lock&&SCR.lock.release(); }catch(e){} }
+function flash(){
+  const f=document.createElement("div"); f.className="flash";
+  f.innerHTML=`<div><span class="ball b8"><i>✓</i></span><h2>${t("given")}</h2></div>`;
+  document.body.appendChild(f); setTimeout(()=>f.remove(),1800);
+}
+
+/* ---------------- owner: admin list ---------------- */
+let adminUnsub=null;
+function startAdmin(){ if(adminUnsub) return;
+  adminUnsub=backend.watchCustomers(list=>{ S.customers=list; if(S.view==="admin") refreshAdminList(); },
+    ()=>{ S.adminMsg={k:"err",t:t("err")}; render(); }); }
+function stopAdmin(){ if(adminUnsub){ adminUnsub(); adminUnsub=null; } }
+function refreshAdminList(){ // keep focus in search box
+  const focused=document.activeElement&&document.activeElement.id==="adminSearch"; const pos=focused?document.activeElement.selectionStart:0;
+  $("#app").innerHTML=viewAdmin();
+  if(focused){ const s=$("#adminSearch"); s.focus(); try{ s.setSelectionRange(pos,pos);}catch(e){} }
+}
+
+/* ---------------- events ---------------- */
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act],[data-lang]"); if(!b) return;
+  if(b.dataset.lang){ S.lang=b.dataset.lang; try{localStorage.setItem("bro_lang",S.lang);}catch(x){} SCR.on? (render()) : render(); return; }
+  const a=b.dataset.act;
+  if(a==="signin"){ try{ await backend.signIn(); }catch(x){ S.msg={k:"err",t:t("err")}; render(); } }
+  else if(a==="signout"){ S.msg=null; await backend.signOut(); }
+  else if(a==="claim") claim();
+  else if(a==="demo-code"){ const c=genCode(); await backend.issueCode(c); S.msg={k:"warn",t:t("demoCodeIs",{c})}; render(); }
+  else if(a==="sheet-close"){ S.sheet=null; render(); }
+  else if(a==="go-screen") location.hash="screen";
+  else if(a==="go-admin") location.hash="admin";
+  else if(a==="fs"){ const el=document.documentElement; (el.requestFullscreen?el.requestFullscreen():Promise.reject()).catch(()=>{}); }
+  else if(a==="redeem"){ S.confirmUid=b.dataset.uid; S.adminMsg=null; refreshAdminList(); }
+  else if(a==="redeem-no"){ S.confirmUid=null; refreshAdminList(); }
+  else if(a==="redeem-yes"){
+    const uid=b.dataset.uid; b.disabled=true;
+    try{ await backend.giveReward(uid); S.adminMsg={k:"ok",t:t("redeemed")}; }catch(x){ S.adminMsg={k:"err",t:t("err")}; }
+    S.confirmUid=null; refreshAdminList();
+  }
+});
+document.addEventListener("input",e=>{ if(e.target.id==="adminSearch"){ S.search=e.target.value; refreshAdminList(); } });
+document.addEventListener("submit",async e=>{
+  if(e.target.id!=="demoForm") return; e.preventDefault();
+  const name=$("#demoName").value.trim(); if(!name) return;
+  S.sheet=null; await backend.demoCreate(name); render();
+});
+window.addEventListener("hashchange",route);
+// refresh the cooldown line once in a while (not while typing)
+setInterval(()=>{ if(S.view==="customer" && S.user && document.activeElement?.id!=="code" && !S.busy && !S.sheet) render(); }, DEMO?5000:30000);
+
+/* ---------------- boot ---------------- */
+let backend; let custUnsub=null;
+(async function boot(){
+  try{ backend = DEMO? makeDemo() : await makeFirebase(); }
+  catch(e){ $("#app").innerHTML=`<div class="wrap"><div class="msg err">${t("err")}</div></div>`; return; }
+  backend.onAuth(async u=>{
+    S.user=u; S.authReady=true; S.customer=null; S.msg=null;
+    if(custUnsub){ custUnsub(); custUnsub=null; }
+    if(u){
+      try{ await backend.ensureCustomer(u); }catch(e){}
+      custUnsub=backend.watchCustomer(u.uid,c=>{
+        const prev=S.customer; S.customer=c;
+        if(S.justEarnedPending!=null && c && (c.stars||0)>S.justEarnedPending){ S.justEarned=S.justEarnedPending; S.justEarnedPending=null; }
+        if(S.view==="customer" && document.activeElement?.id!=="code" || (prev&&c&&prev.stars!==c.stars)) render();
+      });
+    }
+    route();
+  });
+  route();
+})();
+</script>
+
+</body>
+</html>
