@@ -283,38 +283,6 @@ const I18N = {
     demoCode:"Demo: kasadaki ekrandan yeni kod al",demoCodeIs:"Ekrandaki kod: {c}",demoLogin:"Demo girişi", demoName:"Adın", demoNote:"Gerçek sitede bu adımda Google hesabı seçilir.", demoGo:"Giriş yap", cancel:"Vazgeç",
     loading:"Yükleniyor…", err:"Bir şey ters gitti. Sayfayı yenileyip tekrar dene."
   },
-  ar:{
-    sub:"Game Kart", tagline:"كل ساعة لعب = طابة. ٦ طابات = ساعة مجانية علينا.",
-    signTitle:"سجّل دخولك لبطاقة اللعب", google:"تسجيل الدخول بحساب Google",
-    signNote:"طاباتك محفوظة على حساب جوجل تبعك. حتى لو غيّرت تلفونك ما بتضيع، وما حدا بيقدر يجمع عنك.",
-    inApp:"إذا فاتح الصفحة من داخل إنستغرام أو تطبيق تاني، تسجيل جوجل ما بيشتغل. اختار «فتح بالمتصفح» من القائمة.",
-    hello:"أهلاً", balls:"طابة", left:"باقي {n} ساعات لعب والساعة الجاية علينا.", left1:"باقي ساعة وحدة والساعة الجاية علينا.",
-    rewardTitle:"ساعتك المجانية جاهزة!", rewardText:"فرجي هالشاشة عالكاشير. بعد ما تستعمل الساعة بترجع البطاقة من الأول.",
-    codeLabel:"دخّل الكود اللي ظاهر عالشاشة بالمحل", codeHint:"الكود بيتغيّر كل ٢٠ ثانية وبينستعمل مرة وحدة بس.",
-    claim:"خُد الطابة", checking:"عم نتأكد…",
-    ok:"تمام! انضافت طابة جديدة عالطاولة.", invalid:"الكود غلط أو خلص وقته. جرّب الكود الجديد عالشاشة.",
-    cooldown:"بتاخد طابة وحدة بس كل ساعة. الطابة الجاية بعد {m} دقيقة.", full:"بطاقتك مليانة. استعمل ساعتك المجانية أول.",
-    short:"الكود لازم يكون ٥ أرقام.", nextIn:"الطابة الجاية بتنفتح بعد {m} دقيقة.",
-    how:"كيف بتشتغل؟",
-    how1:"العب ساعة على الأقل: بلايستيشن ٥، بلياردو، بينغ بونغ أو سيمولاتور السيارات.",
-    how2:"دخّل الكود المؤلف من ٥ أرقام اللي ظاهر عالشاشة. كل ساعة = طابة.",
-    how3:"لما تكمّل ٦ طابات، الطابة السودا رقم ٨ إلك: ساعة مجانية.",
-    used:"الساعات المجانية اللي استعملتها: {n}", out:"تسجيل خروج",
-    sections:["بلايستيشن ٥","بلياردو","بينغ بونغ","سيمولاتور سيارات"],
-    screenTitle:"دخّل الكود وخُد طابتك", screenSub:"افتح Game Kart بتلفونك واكتب هالكود.",
-    newIn:"كود جديد بعد {s} ثانية", given:"انعطت الطابة", scan:"امسح بتلفونك وافتح Game Kart",
-    todayGiven:"الطابات اللي انعطت من هالشاشة: {n}", fullscreen:"ملء الشاشة",
-    ownerOnly:"هالصفحة لصاحب المحل بس.", ownerSign:"سجّل دخول بحساب صاحب المحل",
-    notOwner:"هالحساب ({e}) مش مسجّل كصاحب المحل.",
-    admin:"لوحة المالك", customers:"زبون", ready:"ساعات مجانية جاهزة", givenTotal:"ساعات مجانية انعطت",
-    search:"دوّر بالاسم أو الإيميل", redeem:"استعمال الساعة المجانية", sure:"متأكد؟", yes:"إيه، استعملها", no:"إلغاء",
-    readyChip:"جاهزة", openScreen:"افتح شاشة الكود", empty:"لسا ما في زبائن. أول ما يسجّل أول زبون بجوجل بيطلع هون.",
-    noMatch:"ما في زبون بهالاسم.", redeemed:"انستعملت الساعة المجانية ورجعت البطاقة من الأول.", freeUsed:"ساعات مجانية: {n}",
-    demo:"وضع التجربة: البيانات محفوظة على هالجهاز بس، والانتظار بين الطابات ٣٠ ثانية. بالنسخة الحقيقية بيشتغل تسجيل جوجل وقاعدة بيانات مشتركة.",
-    dCustomer:"الزبون", dScreen:"شاشة الكود", dAdmin:"لوحة المالك",
-    demoCode:"تجربة: جيب كود جديد من شاشة المحل",demoCodeIs:"الكود عالشاشة: {c}",demoLogin:"دخول تجريبي", demoName:"اسمك", demoNote:"بالموقع الحقيقي هون بيختار الزبون حساب جوجل تبعه.", demoGo:"دخول", cancel:"إلغاء",
-    loading:"عم يحمّل…", err:"صار خطأ. حدّث الصفحة وجرّب مرة تانية."
-  },
   en:{
     sub:"Game Kart", tagline:"One ball for every hour you play. 6 balls = 1 hour on us.",
     signTitle:"Sign in to your Game Kart", google:"Continue with Google",
@@ -350,7 +318,7 @@ const I18N = {
 };
 function pickLang(){
   try{ const s=localStorage.getItem("bro_lang"); if(s && I18N[s]) return s; }catch(e){}
-  const n=(navigator.language||"tr").slice(0,2); return I18N[n]? n : "tr";
+  return "tr";
 }
 const S = { lang:pickLang(), view:"customer", authReady:false, user:null, customer:null, customers:[],
   msg:null, busy:false, justEarned:-1, search:"", confirmUid:null, adminMsg:null, sheet:null };
@@ -469,7 +437,7 @@ function avatar(u){ const i=(u.name||u.email||"?").trim().charAt(0).toUpperCase(
   return `<span class="avatar">${u.photo?`<img src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer">`:esc(i)}</span>`; }
 function header(extra=""){
   return `<header class="top"><div class="brand"><img src="logo.svg" alt="BroGame"><div><b>${CONFIG.shop.name}</b><small>${t("sub")}</small></div></div>
-  ${extra}<div class="langs" role="group" aria-label="Language">${["tr","ar","en"].map(l=>`<button data-lang="${l}" class="${S.lang===l?"on":""}" aria-pressed="${S.lang===l}">${l==="ar"?"ع":l.toUpperCase()}</button>`).join("")}</div></header>`;
+  ${extra}<div class="langs" role="group" aria-label="Language">${["tr","en"].map(l=>`<button data-lang="${l}" class="${S.lang===l?"on":""}" aria-pressed="${S.lang===l}">${l==="ar"?"ع":l.toUpperCase()}</button>`).join("")}</div></header>`;
 }
 function footer(){
   const s=CONFIG.shop;
@@ -555,7 +523,7 @@ function viewScreen(){
       <p class="muted" style="font-size:clamp(14px,1.6vw,20px)">${t("screenSub")}</p>
       <div class="row"><span class="chip" id="givenCount">${t("todayGiven",{n:fmtN(SCR.given)})}</span>
         <button class="btn ghost small" data-act="fs">${t("fullscreen")}</button><button class="btn ghost small" data-act="go-admin">${t("admin")}</button>
-        <div class="langs" role="group" aria-label="Language">${["tr","ar","en"].map(l=>`<button data-lang="${l}" class="${S.lang===l?"on":""}" aria-pressed="${S.lang===l}">${l==="ar"?"ع":l.toUpperCase()}</button>`).join("")}</div></div>
+        <div class="langs" role="group" aria-label="Language">${["tr","en"].map(l=>`<button data-lang="${l}" class="${S.lang===l?"on":""}" aria-pressed="${S.lang===l}">${l==="ar"?"ع":l.toUpperCase()}</button>`).join("")}</div></div>
     </div>
     <div class="qr"><div id="qr"></div><p>${t("scan")}</p></div>
   </div>`;
