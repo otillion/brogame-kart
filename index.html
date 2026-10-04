@@ -90,7 +90,7 @@ p{margin:0}
   display:flex;align-items:center;justify-content:center;gap:clamp(3px,1.4cqi,10px);
 }
 .table .felt{container-type:inline-size;padding-inline:8px}
-.table .ball{--s:min(46px,11.2cqi)}
+.table .ball{--s:min(42px,7.9cqi)}
 .pocket{position:absolute;width:14px;height:14px;border-radius:50%;background:#07060f;box-shadow:inset 0 2px 3px rgba(0,0,0,.8)}
 .pocket.tl{top:-5px;left:-5px}.pocket.tr{top:-5px;right:-5px}.pocket.bl{bottom:-5px;left:-5px}.pocket.br{bottom:-5px;right:-5px}
 .string{width:2px;align-self:stretch;margin-inline:2px;background:repeating-linear-gradient(180deg,rgba(255,255,255,.35) 0 4px,transparent 4px 8px)}
@@ -107,13 +107,14 @@ p{margin:0}
   width:46%;height:46%;border-radius:50%;background:#fbfaf5;display:grid;place-items:center;line-height:1}
 .ball.off{background:transparent;box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);}
 .ball.off i{background:transparent;color:rgba(255,255,255,.28)}
-.b1{--c:#f4c20d}.b2{--c:#2456d6}.b3{--c:#d62839}.b4{--c:#7a35b0}.b5{--c:#f26b1d}.b6{--c:#1f9a57}.b8{--c:#14131a}
+.b1{--c:#f4c20d}.b2{--c:#2456d6}.b3{--c:#d62839}.b4{--c:#7a35b0}.b5{--c:#f26b1d}.b6{--c:#1f9a57}.b7{--c:#8b1e2e}.b9{--c:#f4c20d}.b10{--c:#2456d6}.b11{--c:#d62839}.b8{--c:#14131a}
+.ball.st:not(.off){background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.75) 0 6%,transparent 22%),linear-gradient(180deg,#f4f1e8 0 24%,var(--c) 24% 76%,#f4f1e8 76%)}
 .ball.b8:not(.off){box-shadow:0 0 0 3px var(--gold),0 0 22px rgba(255,209,102,.55),0 4px 8px rgba(0,0,0,.45)}
 .ball.b8.off{box-shadow:inset 0 0 0 2px rgba(255,209,102,.35)}
 .ball.b8.off i{color:rgba(255,209,102,.5)}
 .ball.new{animation:roll .9s cubic-bezier(.2,.8,.2,1) both}
 @keyframes roll{0%{transform:translateX(-140px) rotate(-540deg);opacity:0}70%{transform:translateX(6px) rotate(15deg);opacity:1}100%{transform:none}}
-.mini .ball{--s:22px}
+.mini .ball{--s:19px}
 .mini.felt{padding:6px 8px;gap:4px;border-radius:99px;display:inline-flex}
 
 .score{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -204,7 +205,7 @@ p{margin:0}
 .cust .nm small{color:var(--muted);font-size:12.5px}
 .cust .act{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .search{background:var(--night);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;width:100%}
-@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .stat:last-child{grid-column:span 2}.cust{grid-template-columns:auto minmax(0,1fr)}.cust .act{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .stat:last-child{grid-column:span 2}.cust{grid-template-columns:auto minmax(0,1fr)}.cust .act{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center}}
 
 [dir=rtl] .brand small{letter-spacing:0}
 [dir=rtl] .eyebrow{letter-spacing:0}
@@ -234,7 +235,7 @@ const CONFIG = {
   },
   // Sahip e-postaları (firestore.rules ile AYNI olmalı) / إيميل صاحب المحل (لازم يطابق ملف القواعد)
   ownerEmails: ["broogame10@gmail.com"],
-  starsForReward: 6,      // 6 top = 1 saat
+  starsForReward: 10,     // 10 top = 1 saat
   codeSeconds: 20,        // ekrandaki kod kaç saniyede değişir
   codeValidSeconds: 30,   // kod kaç saniye geçerli (rules ile aynı)
   cooldownMinutes: 50,    // iki top arası en az süre (rules ile aynı)
@@ -252,7 +253,7 @@ const DEMO_COOLDOWN_SEC = 30;
 /* ---------------- i18n ---------------- */
 const I18N = {
   tr:{
-    sub:"Game Kart", tagline:"Her oyun saatine bir top. 6 top = 1 saat bizden.",
+    sub:"Game Kart", tagline:"Her oyun saatine bir top. 10 top = 1 saat bizden.",
     signTitle:"Game Kart'ına giriş yap", google:"Google ile giriş yap",
     signNote:"Topların Google hesabına bağlı kalır. Telefonunu değiştirsen bile kaybolmaz, kimse senin yerine toplayamaz.",
     inApp:"Instagram veya başka bir uygulamanın içindeysen Google girişi çalışmaz. Menüden “Tarayıcıda aç” seçeneğine dokun.",
@@ -266,7 +267,7 @@ const I18N = {
     how:"Nasıl çalışır?",
     how1:"En az 1 saat oyna: PlayStation 5, bilardo, masa tenisi ya da racing simülatör.",
     how2:"Kasadaki ekranda çıkan 5 haneli kodu buraya gir. Her saat için 1 top.",
-    how3:"6 top tamamlanınca siyah 8 numara senin: 1 saat ücretsiz.",
+    how3:"10 top tamamlanınca siyah 8 numara senin: 1 saat ücretsiz.",
     used:"Kullandığın ücretsiz saat: {n}", out:"Çıkış yap",
     sections:["PlayStation 5","Bilardo","Masa Tenisi","Racing Simülatör"],
     screenTitle:"Kodu gir, topunu al", screenSub:"Telefonunda Game Kart'ı aç ve bu kodu yaz.",
@@ -284,7 +285,7 @@ const I18N = {
     loading:"Yükleniyor…", err:"Bir şey ters gitti. Sayfayı yenileyip tekrar dene."
   },
   en:{
-    sub:"Game Kart", tagline:"One ball for every hour you play. 6 balls = 1 hour on us.",
+    sub:"Game Kart", tagline:"One ball for every hour you play. 10 balls = 1 hour on us.",
     signTitle:"Sign in to your Game Kart", google:"Continue with Google",
     signNote:"Your balls are tied to your Google account, so they stay safe if you change phones and nobody can collect them for you.",
     inApp:"Google sign-in doesn't work inside Instagram or other in-app browsers. Use the menu to open this page in your browser.",
@@ -298,7 +299,7 @@ const I18N = {
     how:"How it works",
     how1:"Play at least 1 hour: PlayStation 5, billiards, table tennis or the racing simulator.",
     how2:"Enter the 5-digit code from the screen at the counter. 1 ball per hour.",
-    how3:"Fill all 6 and the black 8-ball is yours: 1 free hour.",
+    how3:"Fill all 10 and the black 8-ball is yours: 1 free hour.",
     used:"Free hours used: {n}", out:"Sign out",
     sections:["PlayStation 5","Billiards","Table Tennis","Racing Simulator"],
     screenTitle:"Enter the code, get your ball", screenSub:"Open Game Kart on your phone and type this code.",
@@ -340,7 +341,7 @@ function makeDemo(){
     const now=Date.now();
     write({ session:"demo-ahmet", codes:{}, customers:{
       "demo-ahmet":{name:"Ahmet Yılmaz (örnek)",email:"ahmet.ornek@gmail.com",photo:"",stars:4,rewards:1,lastStarAt:now-7200000,createdAt:now-86400000*20},
-      "demo-zeynep":{name:"Zeynep K. (örnek)",email:"zeynep.ornek@gmail.com",photo:"",stars:6,rewards:0,lastStarAt:now-3600000,createdAt:now-86400000*9},
+      "demo-zeynep":{name:"Zeynep K. (örnek)",email:"zeynep.ornek@gmail.com",photo:"",stars:10,rewards:0,lastStarAt:now-3600000,createdAt:now-86400000*9},
       "demo-omar":{name:"Omar H. (örnek)",email:"omar.ornek@gmail.com",photo:"",stars:2,rewards:3,lastStarAt:now-86400000,createdAt:now-86400000*60},
       "demo-elif":{name:"Elif D. (örnek)",email:"elif.ornek@gmail.com",photo:"",stars:5,rewards:2,lastStarAt:now-5400000,createdAt:now-86400000*33}
     }});
@@ -425,7 +426,7 @@ function ballsHTML(stars,{mini=false,newIdx=-1}={}){
   const n=CONFIG.starsForReward; let h="";
   for(let i=1;i<=n;i++){
     const on=i<=stars;
-    h+=`<span class="ball b${((i-1)%6)+1} ${on?"":"off"} ${i-1===newIdx?"new":""}" aria-hidden="true"><i>${i}</i></span>`;
+    const lab=[1,2,3,4,5,6,7,9,10,11,12,13,14,15][(i-1)%14]; h+=`<span class="ball b${lab>11?lab-8:lab} ${lab>8?"st":""} ${on?"":"off"} ${i-1===newIdx?"new":""}" aria-hidden="true"><i>${lab}</i></span>`;
   }
   const full=stars>=n;
   h+=`<span class="string" aria-hidden="true"></span><span class="ball b8 ${full?"":"off"} ${full&&newIdx===n-1?"new":""}" aria-hidden="true"><i>8</i></span>`;
