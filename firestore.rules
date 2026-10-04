@@ -38,7 +38,7 @@ service cloud.firestore {
       return after.diff(before).affectedKeys().hasOnly(['stars', 'lastStarAt', 'lastCode'])
         && c is string
         && c.matches('^[0-9]{5}$')
-        && before.stars < 6
+        && before.stars < 10
         && after.stars == before.stars + 1
         && after.lastStarAt == request.time
         && (before.lastStarAt == null || request.time > before.lastStarAt + duration.value(50, 'm'))
@@ -54,7 +54,7 @@ service cloud.firestore {
       let b = resource.data;
       let a = request.resource.data;
       return a.diff(b).affectedKeys().hasOnly(['stars', 'rewards', 'lastRedeemAt'])
-        && b.stars >= 6
+        && b.stars >= 10
         && a.stars == 0
         && a.rewards == b.rewards + 1
         && a.lastRedeemAt == request.time;
