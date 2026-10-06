@@ -257,10 +257,10 @@ const CONFIG = {
     appId: "1:674913714544:web:700a9750ff7efc921d8fb5"
   },
   ownerEmails: ["broogame10@gmail.com"],   // firestore.rules ile aynı
-  starsForReward: 10,     // 10 saat = 11. saat ücretsiz (rules ile aynı)
+  starsForReward: 10,     // 10 mühür = 1 saat ücretsiz (rules ile aynı)
   codeSeconds: 20,        // ekrandaki kod kaç saniyede değişir
   codeValidSeconds: 30,   // kod kaç saniye geçerli (rules ile aynı)
-  cooldownMinutes: 50,    // aynı bölümde iki hak arası en az süre (rules ile aynı)
+  cooldownMinutes: 900,   // iki mühür arası en az süre: 15 saat, tüm bölümler için (rules ile aynı)
   shop: { name:"BroGame", address:"Merkez Mah. Eskiköy Cad. No:38, Mezitli / Mersin", phone:"0531 769 05 33", whatsapp:"905317690533", instagram:"brogameps" }
 };
 const DEMO = !CONFIG.firebase.apiKey;
@@ -306,28 +306,28 @@ const PRIZE={
 /* ---------------- i18n ---------------- */
 const I18N = {
   tr:{
-    sub:"Game Kart", tagline:"Her bölümün kendi kartı var. 10 saat oyna, 11. saat bizden.",
+    sub:"Game Kart", tagline:"1 saatten fazla oyna, 1 mühür al. Bir bölümde 10 mühür toplayınca o bölümde 1 saat ücretsiz.",
     secs:{ps:"PlayStation 5",bil:"Bilardo",tt:"Masa Tenisi",rc:"Racing Simülatör"},
     secsShort:{ps:"PS5",bil:"Bilardo",tt:"Masa Tenisi",rc:"Racing"},
     signTitle:"Game Kart'ına giriş yap", google:"Google ile giriş yap",
-    signNote:"Saatlerin Google hesabına bağlı kalır. Telefonunu değiştirsen bile kaybolmaz, kimse senin yerine toplayamaz.",
+    signNote:"Mühürlerin Google hesabına bağlı kalır. Telefonunu değiştirsen bile kaybolmaz, kimse senin yerine toplayamaz.",
     inApp:"Instagram veya başka bir uygulamanın içindeysen Google girişi çalışmaz. Menüden “Tarayıcıda aç” seçeneğine dokun.",
-    hello:"Merhaba", hours:"saat", left:"{n} saat daha {sec} oyna, sonraki saat bizden.", left1:"Sadece 1 saat daha {sec} oyna, sonraki saat bizden.",
-    free11:"11. saat ücretsiz",
-    rewardTitle:"Ücretsiz 1 saatin hazır!", rewardText:"{sec} için 1 saat ücretsiz. Bu ekranı kasada göster; kullanılınca bu kart yeniden başlar.",
+    hello:"Merhaba", hours:"mühür", left:"{n} mühür daha topla, {sec} için 1 saat ücretsiz.", left1:"Sadece 1 mühür daha, {sec} için 1 saat ücretsiz.",
+    free11:"1 saat ücretsiz", freeTag:"ÜCRETSİZ",
+    rewardTitle:"Ücretsiz 1 saatin hazır!", rewardText:"10 mühür tamam! {sec} için 1 saat ücretsiz. Bu ekranı kasada göster; kullanılınca bu kart yeniden başlar.",
     codeLabel:"Kasadaki ekranda görünen kodu gir", codeHint:"Kod 20 saniyede bir değişir ve sadece bir kez kullanılabilir. QR'ı tararsan kod kendiliğinden girilir.",
-    claim:"Saati ekle", checking:"Kontrol ediliyor…",
-    ok:"Tebrikler! {sec} kartına 1 saat eklendi.", invalid:"Kod geçersiz ya da süresi doldu. Ekrandaki yeni kodu dene.",
-    cooldown:"{sec} için saatte sadece 1 hak alınır. Sonraki: {m} dk sonra.", full:"{sec} kartın dolu. Önce ücretsiz saatini kullan.",
-    short:"Kod 5 haneli olmalı.", nextIn:"{sec} için sonraki hak {m} dk sonra açılır.",
+    claim:"Mührü al", checking:"Kontrol ediliyor…",
+    ok:"Tebrikler! {sec} kartına 1 mühür eklendi.", invalid:"Kod geçersiz ya da süresi doldu. Ekrandaki yeni kodu dene.",
+    cooldown:"15 saatte sadece 1 mühür alınır. Sonraki mühür: {m} sonra.", full:"{sec} kartın dolu. Önce ücretsiz saatini kullan.",
+    short:"Kod 5 haneli olmalı.", nextIn:"Sonraki mühür {m} sonra açılır.",
     how:"Nasıl çalışır?",
     how1:"Oyna: PlayStation 5, bilardo, masa tenisi ya da racing simülatör. Her bölümün kendi kartı var.",
-    how2:"Kasadaki ekranda oynadığın bölümün kodunu gir ya da QR'ı tara. Her saat için 1 hak.",
-    how3:"Bir kartta 10 saat dolunca o bölümde 11. saat ücretsiz.",
+    how2:"1 saatten fazla oynayınca kasadaki ekranda oynadığın bölümün kodunu gir ya da QR'ı tara: 1 mühür. Yeni mühür 15 saat sonra alınabilir.",
+    how3:"Bir bölümde 10 mühür toplayınca o bölümde 1 saat ücretsiz.",
     used:"Kullanılan ücretsiz saat: {n}", out:"Çıkış yap", allCards:"Kartların",
-    screenTitle:"Kodu gir, saatini kazan", screenSub:"Telefonunda Game Kart'ı aç ve bu kodu yaz ya da QR'ı tara.",
-    pickSec:"Müşteri hangi bölümde oynadı?", newIn:"Yeni kod {s} sn", given:"Saat eklendi", scan:"Telefonunla tara: Game Kart açılır, kod kendiliğinden girilir",
-    todayGiven:"Bu ekrandan eklenen saat: {n}", fullscreen:"Tam ekran",
+    screenTitle:"Kodu gir, mührünü al", screenSub:"Telefonunda Game Kart'ı aç ve bu kodu yaz ya da QR'ı tara.",
+    pickSec:"Müşteri hangi bölümde oynadı?", newIn:"Yeni kod {s} sn", given:"Mühür verildi", scan:"Telefonunla tara: Game Kart açılır, kod kendiliğinden girilir",
+    todayGiven:"Bu ekrandan verilen mühür: {n}", fullscreen:"Tam ekran",
     ownerOnly:"Bu sayfa sadece işletme sahibi içindir.", ownerSign:"Sahip hesabıyla giriş yap",
     notOwner:"Bu hesap ({e}) sahip olarak tanımlı değil.",
     admin:"Yönetim", customers:"Müşteri", ready:"Hazır ücretsiz saat", givenTotal:"Verilen ücretsiz saat",
@@ -340,28 +340,28 @@ const I18N = {
     loading:"Yükleniyor…", err:"Bir şey ters gitti. Sayfayı yenileyip tekrar dene."
   },
   en:{
-    sub:"Game Kart", tagline:"Every section has its own card. Play 10 hours, the 11th is on us.",
+    sub:"Game Kart", tagline:"Play more than 1 hour, get 1 stamp. Collect 10 stamps in a section and get 1 free hour there.",
     secs:{ps:"PlayStation 5",bil:"Billiards",tt:"Table Tennis",rc:"Racing Simulator"},
     secsShort:{ps:"PS5",bil:"Billiards",tt:"Table Tennis",rc:"Racing"},
     signTitle:"Sign in to your Game Kart", google:"Continue with Google",
-    signNote:"Your hours are tied to your Google account, so they stay safe if you change phones and nobody can collect them for you.",
+    signNote:"Your stamps are tied to your Google account, so they stay safe if you change phones and nobody can collect them for you.",
     inApp:"Google sign-in doesn't work inside Instagram or other in-app browsers. Use the menu to open this page in your browser.",
-    hello:"Hi", hours:"hours", left:"{n} more hours of {sec} and the next one is on us.", left1:"Just 1 more hour of {sec} and the next one is on us.",
-    free11:"11th hour free",
-    rewardTitle:"Your free hour is ready!", rewardText:"1 free hour of {sec}. Show this screen at the counter; this card starts over after it's used.",
+    hello:"Hi", hours:"stamps", left:"{n} more stamps for 1 free hour of {sec}.", left1:"Just 1 more stamp for 1 free hour of {sec}.",
+    free11:"1 free hour", freeTag:"FREE",
+    rewardTitle:"Your free hour is ready!", rewardText:"10 stamps done! 1 free hour of {sec}. Show this screen at the counter; this card starts over after it's used.",
     codeLabel:"Enter the code shown on the screen at the counter", codeHint:"The code changes every 20 seconds and works only once. Scan the QR and the code fills in by itself.",
-    claim:"Add hour", checking:"Checking…",
-    ok:"Nice! 1 hour added to your {sec} card.", invalid:"That code is wrong or expired. Try the new code on the screen.",
-    cooldown:"You can add 1 {sec} hour per hour. Next one in {m} min.", full:"Your {sec} card is full. Use your free hour first.",
-    short:"The code has 5 digits.", nextIn:"Next {sec} hour unlocks in {m} min.",
+    claim:"Get stamp", checking:"Checking…",
+    ok:"Nice! 1 stamp added to your {sec} card.", invalid:"That code is wrong or expired. Try the new code on the screen.",
+    cooldown:"You can get 1 stamp every 15 hours. Next stamp in {m}.", full:"Your {sec} card is full. Use your free hour first.",
+    short:"The code has 5 digits.", nextIn:"Next stamp unlocks in {m}.",
     how:"How it works",
     how1:"Play PlayStation 5, billiards, table tennis or the racing simulator. Each one has its own card.",
-    how2:"Enter the code for the section you played from the screen at the counter, or scan the QR. 1 per hour.",
-    how3:"Fill 10 hours on a card and your 11th hour in that section is free.",
+    how2:"After playing more than 1 hour, enter the code for your section from the screen at the counter or scan the QR: 1 stamp. The next stamp opens 15 hours later.",
+    how3:"Collect 10 stamps in a section and get 1 free hour there.",
     used:"Free hours used: {n}", out:"Sign out", allCards:"Your cards",
-    screenTitle:"Enter the code, earn your hour", screenSub:"Open Game Kart on your phone and type this code, or scan the QR.",
-    pickSec:"Which section did the customer play?", newIn:"New code in {s}s", given:"Hour added", scan:"Scan with your phone: Game Kart opens and fills in the code",
-    todayGiven:"Hours added from this screen: {n}", fullscreen:"Full screen",
+    screenTitle:"Enter the code, get your stamp", screenSub:"Open Game Kart on your phone and type this code, or scan the QR.",
+    pickSec:"Which section did the customer play?", newIn:"New code in {s}s", given:"Stamp given", scan:"Scan with your phone: Game Kart opens and fills in the code",
+    todayGiven:"Stamps given from this screen: {n}", fullscreen:"Full screen",
     ownerOnly:"This page is for the shop owner only.", ownerSign:"Sign in with the owner account",
     notOwner:"This account ({e}) isn't set as the owner.",
     admin:"Owner panel", customers:"Customers", ready:"Free hours ready", givenTotal:"Free hours given",
@@ -389,6 +389,8 @@ const N = CONFIG.starsForReward;
 const cnt = (c,s) => Math.min(N, Math.max(0, (c&&c.balls&&c.balls[s])||0));
 const freeOf = (c,s) => (c&&c.free&&c.free[s])||0;
 const lastOf = (c,s) => (c&&c.lastAt&&c.lastAt[s])||null;
+const lastAny = c => Math.max(0,...SECS.map(s=>lastOf(c,s)||0))||null;
+const fmtWait = ms => { const t=Math.max(1,Math.ceil(ms/60000)), h=Math.floor(t/60), m=t%60; const H=S.lang==="tr"?"sa":"h", M=S.lang==="tr"?"dk":"min"; return h? `${fmtN(h)} ${H}${m?` ${fmtN(m)} ${M}`:""}` : `${fmtN(m)} ${M}`; };
 
 /* ---------------- backends ---------------- */
 function bad(code){ const e=new Error(code); e.code=code; return e; }
@@ -426,7 +428,7 @@ function makeDemo(){
       if(!c || c.used || now-c.createdAt>CONFIG.codeValidSeconds*1000) throw bad("invalid");
       const s=c.sec;
       if(cu.balls[s]>=N) throw bad("full");
-      if(cu.lastAt[s] && now-cu.lastAt[s]<cooldownMs()) throw bad("cooldown");
+      const la=Math.max(0,...SECS.map(k=>cu.lastAt[k]||0)); if(la && now-la<cooldownMs()) throw bad("cooldown");
       c.used=true; c.usedBy=uid; c.usedAt=now; cu.balls[s]+=1; cu.lastAt[s]=now; cu.lastCode=code; write(d);
     },
     watchCustomers(cb){ const f=()=>{ const d=read(); cb(Object.entries(d.customers).map(([uid,c])=>({uid,...c}))); }; subs.add(f); f(); return ()=>subs.delete(f); },
@@ -507,7 +509,7 @@ function boardHTML(sec,count,{newIdx=-1}={}){
   const full=count>=N, [px,py]=L.prize;
   const prize = sec==="bil" ? `<span class="ball b8"><i>8</i></span>` : PRIZE[sec](full);
   h+=`<span class="tok prize ${full?"":"off"} ${full&&newIdx===N-1?"new":""}" style="--x:${px}%;--y:${py}%;--s:${L.ps}" aria-hidden="true">${prize}</span>`;
-  if(sec!=="bil") h+=`<span class="prize-tag ${full?"":"off"}" style="left:${px}%;top:${sec==="ps"?92:84}%">11</span>`;
+  if(sec!=="bil") h+=`<span class="prize-tag ${full?"":"off"}" style="left:${px}%;top:${sec==="ps"?92:84}%">${t("freeTag")}</span>`;
   const label=`<span class="sr">${secName(sec)}: ${count} / ${N}</span>`;
   if(sec==="bil"){
     const pk=[[0,0],[50,-1],[100,0],[0,100],[50,101],[100,100]].map(([x,y])=>`<span class="pocket" style="left:${x}%;top:${y}%"></span>`).join("");
@@ -563,7 +565,7 @@ function viewCard(){
   if(!c) return `<div class="wrap">${header()}<section class="panel"><p class="muted">${t("loading")}</p></section></div>`;
   if(!S.sec) S.sec=defaultSec(c);
   const sec=S.sec, n=cnt(c,sec), full=n>=N;
-  const wait=lastOf(c,sec)? Math.max(0,lastOf(c,sec)+cooldownMs()-Date.now()) : 0;
+  const wait=lastAny(c)? Math.max(0,lastAny(c)+cooldownMs()-Date.now()) : 0;
   const msg=S.msg?`<div class="msg ${S.msg.k}" role="status">${esc(S.msg.t)}</div>`:"";
   const tabs=`<div class="tabs" role="tablist" aria-label="${t("allCards")}">${SECS.map(s=>{ const k=cnt(c,s);
     return `<button class="tab ${s===sec?"on":""} ${k>=N?"ready":""}" role="tab" aria-selected="${s===sec}" data-act="tab" data-sec="${s}">${IC[s]}<b>${fmtN(k)}/${fmtN(N)}</b><small>${esc(secShort(s))}</small></button>`; }).join("")}</div>`;
@@ -586,7 +588,7 @@ function viewCard(){
       <div class="who">${avatar(u)}<div style="min-width:0"><b>${esc(c.name||u.name)}</b><small class="muted" style="overflow-wrap:anywhere">${esc(c.email||u.email)}</small></div></div>
       ${msg}
     </section>` : "";
-  const line = full? t("rewardTitle") : (wait>0? t("nextIn",{sec:esc(secName(sec)),m:fmtN(Math.max(1,Math.ceil(wait/60000)))}) : (N-n===1?t("left1",{sec:esc(secName(sec))}):t("left",{n:fmtN(N-n),sec:esc(secName(sec))})));
+  const line = full? t("rewardTitle") : (wait>0? t("nextIn",{m:fmtWait(wait)}) : (N-n===1?t("left1",{sec:esc(secName(sec))}):t("left",{n:fmtN(N-n),sec:esc(secName(sec))})));
   return `<div class="wrap">${header(`<button class="link" data-act="signout">${t("out")}</button>`)}
     <section class="panel">
       <div class="row">${avatar(u)}<div style="min-width:0"><div class="muted" style="font-size:13px">${t("hello")}</div><b style="font-size:17px">${esc((c.name||u.name||"").split(" (")[0])}</b></div></div>
@@ -710,14 +712,14 @@ async function claim(codeArg){
   if(!sec){ S.msg={k:"err",t:t("invalid")}; return render(); }
   S.sec=sec;
   if(cnt(c,sec)>=N){ S.msg={k:"warn",t:t("full",{sec:secName(sec)})}; return render(); }
-  const wait=lastOf(c,sec)? lastOf(c,sec)+cooldownMs()-Date.now() : 0;
-  if(wait>0){ S.msg={k:"warn",t:t("cooldown",{sec:secName(sec),m:fmtN(Math.max(1,Math.ceil(wait/60000)))})}; return render(); }
+  const wait=lastAny(c)? lastAny(c)+cooldownMs()-Date.now() : 0;
+  if(wait>0){ S.msg={k:"warn",t:t("cooldown",{m:fmtWait(wait)})}; return render(); }
   S.busy=true; S.msg=null; render();
   try{
     const before=cnt(c,sec);
     await backend.redeem(S.user.uid,code);
     S.justEarnedPending={sec,i:before}; S.msg={k:"ok",t:t("ok",{sec:secName(sec)})};
-  }catch(e){ S.msg={k:"err",t:t(e.code==="cooldown"?"cooldown":e.code==="full"?"full":"invalid",{sec:secName(sec),m:fmtN(1)})}; }
+  }catch(e){ S.msg={k:"err",t:t(e.code==="cooldown"?"cooldown":e.code==="full"?"full":"invalid",{sec:secName(sec),m:fmtWait((lastAny(S.customer)||Date.now())+cooldownMs()-Date.now())})}; }
   S.busy=false; render();
 }
 
