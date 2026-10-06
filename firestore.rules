@@ -4,7 +4,7 @@ rules_version = '2';
 // هدول القواعد هنن اللي بيمنعوا الغش: ما حدا بيقدر يعدّل نجومه أو يستعمل كود مرتين.
 //
 // ⚠️ غيّر الإيميل تحت لإيميل جوجل تبع صاحب المحل (ونفس الإيميل بملف index.html → ownerEmails)
-// الأرقام تحت (30 ثانية، 50 دقيقة، 6 طابات) لازم تطابق الإعدادات بملف index.html
+// الأرقام تحت (30 ثانية، 15 ساعة، 10 مُهر) لازم تطابق الإعدادات بملف index.html
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -22,42 +22,67 @@ service cloud.firestore {
     function codeDoc(c) { return /databases/$(database)/documents/codes/$(c); }
     function customerDoc(u) { return /databases/$(database)/documents/customers/$(u); }
 
-    // الزبون بيغيّر اسمه/صورته بس (من حساب جوجل)
+    // Sections: ps = PlayStation 5, bil = billiards, tt = table tennis, rc = racing.
+    // Each section has its own counter: balls.<sec>, free.<sec>, lastAt.<sec>
+    function zeros() { return {'ps': 0, 'bil': 0, 'tt': 0, 'rc': 0}; }
+    function nulls() { return {'ps': null, 'bil': null, 'tt': null, 'rc': null}; }
+
     function profileEdit() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'photo'])
         && request.resource.data.name is string
         && request.resource.data.name.size() <= 80;
     }
 
-    // الزبون بياخد طابة وحدة: لازم يكون الكود موجود، مش مستعمل، عمره أقل من 30 ثانية،
-    // والكود بينحرق بنفس العملية، ومرّ 50 دقيقة على آخر طابة، والطابات أقل من 6
+    // Older cards (single counter) get the per-section counters added once, all at zero.
+    function upgradeCard() {
+      return !('balls' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balls', 'free', 'lastAt'])
+        && request.resource.data.balls == zeros()
+        && request.resource.data.free == zeros()
+        && request.resource.data.lastAt == nulls();
+    }
+
+    // 15 hours must pass since the last stamp in ANY section.
+    function okSince(v) { return v == null || request.time > v + duration.value(15, 'h'); }
+    function waitOver(l) { return okSince(l.ps) && okSince(l.bil) && okSince(l.tt) && okSince(l.rc); }
+
+    // One stamp on one section: the code must exist, be unused, younger than 30 s, burned in the same write;
+    // the section comes from the code; 15 h since the last stamp anywhere; fewer than 10.
     function earnStar(uid) {
-      let before = resource.data;
-      let after = request.resource.data;
-      let c = after.lastCode;
-      return after.diff(before).affectedKeys().hasOnly(['stars', 'lastStarAt', 'lastCode'])
+      let b = resource.data;
+      let a = request.resource.data;
+      let c = a.lastCode;
+      let s = get(codeDoc(c)).data.sec;
+      return a.diff(b).affectedKeys().hasOnly(['balls', 'lastAt', 'lastCode'])
         && c is string
-        && c.matches('^[0-9]{5}$')
-        && before.stars < 10
-        && after.stars == before.stars + 1
-        && after.lastStarAt == request.time
-        && (before.lastStarAt == null || request.time > before.lastStarAt + duration.value(50, 'm'))
-        && exists(codeDoc(c))
+        && c.matches('^[1-4][0-9]{4}$')
+        && s in ['ps', 'bil', 'tt', 'rc']
+        && a.balls.diff(b.balls).affectedKeys().hasOnly([s])
+        && a.lastAt.diff(b.lastAt).affectedKeys().hasOnly([s])
+        && b.balls[s] < 10
+        && a.balls[s] == b.balls[s] + 1
+        && a.lastAt[s] == request.time
+        && waitOver(b.lastAt)
         && get(codeDoc(c)).data.used == false
         && request.time < get(codeDoc(c)).data.createdAt + duration.value(30, 's')
         && getAfter(codeDoc(c)).data.used == true
         && getAfter(codeDoc(c)).data.usedBy == uid;
     }
 
-    // صاحب المحل بيعطي الساعة المجانية: الطابات بترجع صفر وبيزيد عدّاد الساعات المجانية واحد
-    function giveReward() {
+    // Owner gives the free hour of one section: that counter goes back to 0, free.<sec> + 1.
+    function rewardOn(s) {
       let b = resource.data;
       let a = request.resource.data;
-      return a.diff(b).affectedKeys().hasOnly(['stars', 'rewards', 'lastRedeemAt'])
-        && b.stars >= 10
-        && a.stars == 0
-        && a.rewards == b.rewards + 1
-        && a.lastRedeemAt == request.time;
+      return a.balls.diff(b.balls).affectedKeys().hasOnly([s])
+        && a.free.diff(b.free).affectedKeys().hasOnly([s])
+        && b.balls[s] >= 10
+        && a.balls[s] == 0
+        && a.free[s] == b.free[s] + 1;
+    }
+    function giveReward() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balls', 'free', 'lastRedeemAt'])
+        && request.resource.data.lastRedeemAt == request.time
+        && (rewardOn('ps') || rewardOn('bil') || rewardOn('tt') || rewardOn('rc'));
     }
 
     match /customers/{uid} {
@@ -65,21 +90,19 @@ service cloud.firestore {
 
       allow create: if signedIn()
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['name', 'email', 'photo', 'stars', 'rewards', 'createdAt', 'lastStarAt', 'lastCode'])
-        && request.resource.data.stars == 0
-        && request.resource.data.rewards == 0
-        && request.resource.data.lastStarAt == null
+        && request.resource.data.keys().hasOnly(['name', 'email', 'photo', 'createdAt', 'lastCode', 'balls', 'free', 'lastAt'])
+        && request.resource.data.balls == zeros()
+        && request.resource.data.free == zeros()
+        && request.resource.data.lastAt == nulls()
         && request.resource.data.lastCode == null
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.createdAt == request.time;
 
-      allow update: if signedIn() && request.auth.uid == uid && (profileEdit() || earnStar(uid));
+      allow update: if signedIn() && request.auth.uid == uid && (profileEdit() || upgradeCard() || earnStar(uid));
       allow update: if isOwner() && giveReward();
       allow delete: if isOwner();
     }
 
-    // الأكواد: بس شاشة صاحب المحل بتنشئها وبتقراها. الزبون ما بيقدر يشوف ولا كود.
-    // الزبون بيقدر بس "يحرق" كود صالح، وبنفس اللحظة لازم ياخد طابته (نفس العملية).
     match /codes/{code} {
       allow read, create, delete: if isOwner();
       allow update: if isOwner() || (
@@ -91,7 +114,7 @@ service cloud.firestore {
         && request.resource.data.usedBy == request.auth.uid
         && request.resource.data.usedAt == request.time
         && getAfter(customerDoc(request.auth.uid)).data.lastCode == code
-        && getAfter(customerDoc(request.auth.uid)).data.lastStarAt == request.time
+        && getAfter(customerDoc(request.auth.uid)).data.lastAt[resource.data.sec] == request.time
       );
     }
 
